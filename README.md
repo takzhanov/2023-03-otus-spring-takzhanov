@@ -6,4 +6,5 @@
 [Yury Takzhanov](https://takzhanov.github.io/)
 
 * lesson-01-question-reader
+* lesson-02-quiz
 * 
