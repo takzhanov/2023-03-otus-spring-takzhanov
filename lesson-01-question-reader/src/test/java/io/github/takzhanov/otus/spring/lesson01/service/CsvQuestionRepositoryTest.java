@@ -1,5 +1,7 @@
 package io.github.takzhanov.otus.spring.lesson01.service;
 
+import io.github.takzhanov.otus.spring.lesson01.dao.QuestionRepository;
+import io.github.takzhanov.otus.spring.lesson01.dao.CsvQuestionRepository;
 import io.github.takzhanov.otus.spring.lesson01.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson01.domain.Question;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,17 +13,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class QuestionReaderServiceTest {
-    private QuestionReaderService questionReaderService;
+public class CsvQuestionRepositoryTest {
+    private QuestionRepository questionRepository;
 
     @BeforeEach
     public void setUp() {
-        questionReaderService = new QuestionReaderService("testQuestions.csv");
+        questionRepository = new CsvQuestionRepository("testQuestions.csv");
     }
 
     @Test
     public void loadQuestionsTest() {
-        List<Question> questions = questionReaderService.loadQuestions();
+        List<Question> questions = questionRepository.findAll();
         assertNotNull(questions, "Questions list should not be null");
         assertEquals(5, questions.size(), "There should be 5 questions in the list");
 

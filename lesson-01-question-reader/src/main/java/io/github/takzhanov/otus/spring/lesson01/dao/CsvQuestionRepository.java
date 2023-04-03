@@ -1,19 +1,23 @@
-package io.github.takzhanov.otus.spring.lesson01.service;
+package io.github.takzhanov.otus.spring.lesson01.dao;
 
 import io.github.takzhanov.otus.spring.lesson01.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson01.domain.Question;
-import lombok.AllArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 
-@AllArgsConstructor
-public class QuestionReaderService {
+@RequiredArgsConstructor
+public class CsvQuestionRepository implements QuestionRepository {
     private final String fileName;
+
+    @Override
+    public List<Question> findAll() {
+        return parseQuestions(readLinesFromFile());
+    }
 
     private List<String> readLinesFromFile() {
         List<String> lines = new ArrayList<>();
@@ -26,7 +30,7 @@ public class QuestionReaderService {
                 lines.add(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Trouble with reading %s".formatted(fileName), e);
         }
 
         return lines;
@@ -52,10 +56,6 @@ public class QuestionReaderService {
         }
 
         return questions;
-    }
-
-    public List<Question> loadQuestions() {
-        return parseQuestions(readLinesFromFile());
     }
 
 }

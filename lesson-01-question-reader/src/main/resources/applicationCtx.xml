@@ -4,10 +4,21 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean class="io.github.takzhanov.otus.spring.lesson01.service.QuestionReaderService">
+    <bean id="csvQuestionRepository" class="io.github.takzhanov.otus.spring.lesson01.dao.CsvQuestionRepository">
         <constructor-arg value="questions.csv"/>
     </bean>
 
-    <bean class="io.github.takzhanov.otus.spring.lesson01.service.QuestionPrinterService"/>
+    <bean id="systemOutPrintStreamFactory"
+          class="io.github.takzhanov.otus.spring.lesson01.utils.SystemOutPrintStreamFactory"/>
 
+    <bean id="systemOut" factory-bean="systemOutPrintStreamFactory" factory-method="get"/>
+
+    <bean id="simpleQuestionPrinter" class="io.github.takzhanov.otus.spring.lesson01.service.SimpleQuestionPrinter">
+        <constructor-arg ref="systemOut"/>
+    </bean>
+
+    <bean class="io.github.takzhanov.otus.spring.lesson01.service.DemoQuiz">
+        <constructor-arg ref="csvQuestionRepository"/>
+        <constructor-arg ref="simpleQuestionPrinter"/>
+    </bean>
 </beans>
