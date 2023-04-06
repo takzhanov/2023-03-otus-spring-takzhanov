@@ -10,16 +10,16 @@ import org.mockito.Mockito;
 
 import static org.mockito.Mockito.only;
 
-class DemoQuizTest {
+class DemoQuizServiceTest {
     private QuestionRepository mockQuestionRepository;
-    private QuestionPrinter mockQuestionPrinter;
-    private DemoQuiz demoQuiz;
+    private QuestionPrintService mockQuestionPrintService;
+    private DemoQuizService demoQuiz;
 
     @BeforeEach
     void setUp() {
         mockQuestionRepository = Mockito.mock(QuestionRepository.class);
-        mockQuestionPrinter = Mockito.mock(QuestionPrinter.class);
-        demoQuiz = new DemoQuiz(mockQuestionRepository, mockQuestionPrinter);
+        mockQuestionPrintService = Mockito.mock(QuestionPrintService.class);
+        demoQuiz = new DemoQuizService(mockQuestionRepository, mockQuestionPrintService);
     }
 
     @Test
@@ -30,6 +30,6 @@ class DemoQuizTest {
         demoQuiz.runQuiz();
 
         Mockito.verify(mockQuestionRepository, only()).findAll();
-        Mockito.verify(mockQuestionPrinter, only()).printQuestions(fakeQuestions);
+        Mockito.verify(mockQuestionPrintService, only()).printQuestions(fakeQuestions);
     }
 }

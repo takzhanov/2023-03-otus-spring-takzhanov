@@ -2,11 +2,13 @@ package io.github.takzhanov.otus.spring.lesson01.dao;
 
 import io.github.takzhanov.otus.spring.lesson01.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson01.domain.Question;
+import io.github.takzhanov.otus.spring.lesson01.exceptions.CsvReadException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 
@@ -16,7 +18,8 @@ public class CsvQuestionRepository implements QuestionRepository {
 
     @Override
     public List<Question> findAll() {
-        return parseQuestions(readLinesFromFile());
+        var lines = readLinesFromFile();
+        return parseQuestions(lines);
     }
 
     private List<String> readLinesFromFile() {
@@ -30,32 +33,36 @@ public class CsvQuestionRepository implements QuestionRepository {
                 lines.add(line);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Trouble with reading %s".formatted(fileName), e);
+            throw new CsvReadException("Trouble with reading %s".formatted(fileName), e);
         }
 
         return lines;
     }
 
-    private List<Question> parseQuestions(List<String> lines) {
-        List<Question> questions = new ArrayList<>();
-        for (String line : lines) {
-            String[] fields = line.split(",");
-            String questionText = fields[0];
-            List<Answer> answers = new ArrayList<>();
-
-            for (int i = 1; i < fields.length; i++) {
-                String answerText = fields[i];
-                if (answerText.startsWith("*")) {
-                    answers.add(new Answer(answerText.substring(1), true));
-                } else {
-                    answers.add(new Answer(answerText, false));
-                }
-            }
-
-            questions.add(new Question(questionText, answers));
+    private List<Question> parseQuestions(List<String> csvLines) {
+        try {
+            return csvLines.stream()
+                    .map(this::parseCsvLine)
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            throw new CsvReadException("Incorrect question file format", ex);
         }
-
-        return questions;
     }
 
+    private Question parseCsvLine(String csvLine) {
+        String[] fields = csvLine.split(",");
+        String questionText = fields[0];
+        List<Answer> answers = new ArrayList<>();
+
+        for (int i = 1; i < fields.length; i++) {
+            String answerText = fields[i];
+            if (answerText.startsWith("*")) {
+                answers.add(new Answer(answerText.substring(1), true));
+            } else {
+                answers.add(new Answer(answerText, false));
+            }
+        }
+
+        return new Question(questionText, answers);
+    }
 }

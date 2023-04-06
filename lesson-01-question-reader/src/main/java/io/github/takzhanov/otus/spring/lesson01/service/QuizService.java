@@ -1,5 +1,5 @@
 package io.github.takzhanov.otus.spring.lesson01.service;
 
-public interface Quiz {
+public interface QuizService {
     void runQuiz();
 }

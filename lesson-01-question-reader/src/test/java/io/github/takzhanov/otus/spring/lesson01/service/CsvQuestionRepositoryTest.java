@@ -1,28 +1,23 @@
 package io.github.takzhanov.otus.spring.lesson01.service;
 
-import io.github.takzhanov.otus.spring.lesson01.dao.QuestionRepository;
 import io.github.takzhanov.otus.spring.lesson01.dao.CsvQuestionRepository;
 import io.github.takzhanov.otus.spring.lesson01.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson01.domain.Question;
-import org.junit.jupiter.api.BeforeEach;
+import io.github.takzhanov.otus.spring.lesson01.exceptions.CsvReadException;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
+import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+@DisplayName("CsvQuestionRepository")
 public class CsvQuestionRepositoryTest {
-    private QuestionRepository questionRepository;
-
-    @BeforeEach
-    public void setUp() {
-        questionRepository = new CsvQuestionRepository("testQuestions.csv");
-    }
-
     @Test
-    public void loadQuestionsTest() {
+    @DisplayName("should read correct csv file successfully")
+    public void findAllForCorrectFileTest() {
+        var questionRepository = new CsvQuestionRepository("testQuestions.csv");
+
         List<Question> questions = questionRepository.findAll();
         assertNotNull(questions, "Questions list should not be null");
         assertEquals(5, questions.size(), "There should be 5 questions in the list");
@@ -41,11 +36,19 @@ public class CsvQuestionRepositoryTest {
                 new Answer("A3_2", true))), questions.get(2));
 
         assertEquals(new Question("Q4",
-                Collections.emptyList()), questions.get(3));
+                emptyList()), questions.get(3));
 
         assertEquals(new Question("Q5", List.of(
                 new Answer("A5_1", false),
                 new Answer("A5_2", false),
                 new Answer("A5_3", true))), questions.get(4));
+    }
+
+    @Test
+    @DisplayName("should throw specific exception when read bad file")
+    public void findAllForBadFileTest() {
+        var questionRepository = new CsvQuestionRepository("empty.csv");
+
+        assertThrows(CsvReadException.class, questionRepository::findAll);
     }
 }

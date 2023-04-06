@@ -2,13 +2,12 @@ package io.github.takzhanov.otus.spring.lesson01.service;
 
 import io.github.takzhanov.otus.spring.lesson01.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson01.domain.Question;
-import java.io.PrintStream;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SimpleQuestionPrinter implements QuestionPrinter {
-    private final PrintStream out;
+public class QuestionPrinterImpl implements QuestionPrintService {
+    private final OutputService out;
 
     @Override
     public void printQuestions(List<Question> questions) {

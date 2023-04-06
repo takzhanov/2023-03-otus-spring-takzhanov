@@ -4,13 +4,14 @@ import io.github.takzhanov.otus.spring.lesson01.dao.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DemoQuiz implements Quiz {
+public class DemoQuizService implements QuizService {
     private final QuestionRepository questionRepository;
 
-    private final QuestionPrinter questionPrinter;
+    private final QuestionPrintService questionPrintService;
 
     @Override
     public void runQuiz() {
-        questionPrinter.printQuestions(questionRepository.findAll());
+        var questions = questionRepository.findAll();
+        questionPrintService.printQuestions(questions);
     }
 }
