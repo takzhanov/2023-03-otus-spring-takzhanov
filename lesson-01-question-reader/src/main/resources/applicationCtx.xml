@@ -11,10 +11,8 @@
     <bean id="systemOutPrintStreamFactory"
           class="io.github.takzhanov.otus.spring.lesson01.utils.SystemOutPrintStreamFactory"/>
 
-    <bean id="systemOutPrintStream" factory-bean="systemOutPrintStreamFactory" factory-method="get"/>
-
     <bean id="outputServiceImpl" class="io.github.takzhanov.otus.spring.lesson01.service.OutputServiceImpl">
-        <constructor-arg ref="systemOutPrintStream"/>
+        <constructor-arg ref="systemOutPrintStreamFactory"/>
     </bean>
 
     <bean id="simpleQuestionPrinter" class="io.github.takzhanov.otus.spring.lesson01.service.QuestionPrinterImpl">
