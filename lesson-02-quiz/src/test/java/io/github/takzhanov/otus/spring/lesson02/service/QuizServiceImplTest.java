@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
-class DemoQuizServiceTest {
+class QuizServiceImplTest {
     private QuestionRepository mockQuestionRepository;
     private QuestionPrintService mockQuestionPrintService;
     private InputService mockInputService;
     private OutputService mockOutputService;
-    private DemoQuizService demoQuizService;
+    private QuizServiceImpl quizServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -23,7 +23,7 @@ class DemoQuizServiceTest {
         mockQuestionPrintService = mock(QuestionPrintService.class);
         mockInputService = mock(InputService.class);
         mockOutputService = mock(OutputService.class);
-        demoQuizService = new DemoQuizService(mockQuestionRepository, mockQuestionPrintService, mockInputService, mockOutputService);
+        quizServiceImpl = new QuizServiceImpl(mockQuestionRepository, mockQuestionPrintService, mockInputService, mockOutputService);
     }
 
     @Test
@@ -34,14 +34,14 @@ class DemoQuizServiceTest {
         List<Question> questions = Arrays.asList(question1, question2, question3);
 
         when(mockQuestionRepository.findAll()).thenReturn(questions);
-        when(mockInputService.readLine()).thenReturn("Yury", "Answer 1", "Answer 2", "Wrong", "no");
+        when(mockInputService.readLine()).thenReturn("Yury", "T", "Answer 1", "Answer 2", "Wrong", "no");
 
-        demoQuizService.runQuiz();
+        quizServiceImpl.runQuiz();
 
-        verify(mockInputService, times(5)).readLine();
-        verify(mockOutputService).println(startsWith("Welcome to the quiz, Yury!"));
+        verify(mockInputService, times(6)).readLine();
+        verify(mockOutputService).println(startsWith("Welcome to the quiz, Yury T!"));
         verify(mockOutputService, times(3)).println(startsWith("Enter your answer:"));
-        verify(mockOutputService).println("Your score is: 2");
+        verify(mockOutputService).println("Yury T, your score is: 2");
         verify(mockQuestionPrintService, times(3)).printQuestion(any(Question.class));
     }
 }

@@ -2,16 +2,16 @@ package io.github.takzhanov.otus.spring.lesson02.service;
 
 import io.github.takzhanov.otus.spring.lesson02.dao.QuestionRepository;
 import io.github.takzhanov.otus.spring.lesson02.domain.Question;
+import io.github.takzhanov.otus.spring.lesson02.domain.User;
 import io.github.takzhanov.otus.spring.lesson02.domain.UserAnswer;
 import io.github.takzhanov.otus.spring.lesson02.domain.UserResult;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class DemoQuizService implements QuizService {
+public class QuizServiceImpl implements QuizService {
     private final QuestionRepository questionRepository;
     private final QuestionPrintService questionPrintService;
     private final InputService inputService;
@@ -19,11 +19,11 @@ public class DemoQuizService implements QuizService {
 
     @Override
     public void runQuiz() {
+        var questions = questionRepository.findAll();
+        var questionsForQuiz = questions.subList(0, Math.min(questions.size(), 5));
         do {
-            askUserData();
-            var questions = questionRepository.findAll();
-//            Collections.shuffle(questions);
-            var userResult = questionLoop(questions.subList(0, Math.min(questions.size(), 5)));
+            var user = askUserData();
+            var userResult = askQuestions(user, questionsForQuiz);
             showResult(userResult);
         } while (askContinue());
     }
@@ -33,16 +33,20 @@ public class DemoQuizService implements QuizService {
         return inputService.readLine().toLowerCase().startsWith("y");
     }
 
-    private void askUserData() {
-        outputService.println("Enter your name:");
-        String userName = inputService.readLine();
-        outputService.println("Welcome to the quiz, " + userName + "!");
+    private User askUserData() {
+        outputService.println("Enter your first name:");
+        var firstName = inputService.readLine();
+        outputService.println("Enter your last name:");
+        var lastName = inputService.readLine();
+        var user = new User(firstName, lastName);
+        outputService.println("Welcome to the quiz, " + user + "!");
+        return user;
     }
 
-    private UserResult questionLoop(List<Question> questions) {
-        UserResult result = new UserResult();
+    private UserResult askQuestions(User user, List<Question> questions) {
+        var result = new UserResult(user);
         for (var question : questions) {
-            UserAnswer userAnswer = askQuestion(question);
+            var userAnswer = askQuestion(question);
             result.add(question, userAnswer);
         }
         return result;
@@ -55,11 +59,11 @@ public class DemoQuizService implements QuizService {
 
     private UserAnswer readUserInput() {
         outputService.println("Enter your answer:");
-        String userAnswer = inputService.readLine();
+        var userAnswer = inputService.readLine();
         return new UserAnswer(userAnswer);
     }
 
     private void showResult(UserResult result) {
-        outputService.println("Your score is: " + result.getScore());
+        outputService.println(result.getUser() + ", your score is: " + result.getScore());
     }
 }

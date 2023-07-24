@@ -2,7 +2,7 @@ package io.github.takzhanov.otus.spring.lesson02.dao;
 
 import io.github.takzhanov.otus.spring.lesson02.domain.Answer;
 import io.github.takzhanov.otus.spring.lesson02.domain.Question;
-import io.github.takzhanov.otus.spring.lesson02.exceptions.CsvReadException;
+import io.github.takzhanov.otus.spring.lesson02.exceptions.QuestionReadException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,7 +38,7 @@ public class CsvQuestionRepository implements QuestionRepository {
                 lines.add(line);
             }
         } catch (IOException e) {
-            throw new CsvReadException("Trouble with reading %s".formatted(fileName), e);
+            throw new QuestionReadException("Trouble with reading %s".formatted(fileName), e);
         }
 
         return lines;
@@ -50,7 +50,7 @@ public class CsvQuestionRepository implements QuestionRepository {
                     .map(this::parseCsvLine)
                     .collect(Collectors.toList());
         } catch (Exception ex) {
-            throw new CsvReadException("Incorrect question file format", ex);
+            throw new QuestionReadException("Incorrect question file format", ex);
         }
     }
 
