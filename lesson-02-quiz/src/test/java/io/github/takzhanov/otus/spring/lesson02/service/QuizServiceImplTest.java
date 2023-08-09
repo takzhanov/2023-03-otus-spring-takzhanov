@@ -12,18 +12,16 @@ import static org.mockito.Mockito.*;
 
 class QuizServiceImplTest {
     private QuestionRepository mockQuestionRepository;
-    private QuestionPrintService mockQuestionPrintService;
-    private InputService mockInputService;
-    private OutputService mockOutputService;
+    private FormatterService mockFormatterService;
+    private IOService mockIOService;
     private QuizServiceImpl quizServiceImpl;
 
     @BeforeEach
     void setUp() {
         mockQuestionRepository = mock(QuestionRepository.class);
-        mockQuestionPrintService = mock(QuestionPrintService.class);
-        mockInputService = mock(InputService.class);
-        mockOutputService = mock(OutputService.class);
-        quizServiceImpl = new QuizServiceImpl(mockQuestionRepository, mockQuestionPrintService, mockInputService, mockOutputService);
+        mockFormatterService = new FormatterServiceImpl();
+        mockIOService = mock(IOService.class);
+        quizServiceImpl = new QuizServiceImpl(mockQuestionRepository, mockFormatterService, mockIOService);
     }
 
     @Test
@@ -34,14 +32,13 @@ class QuizServiceImplTest {
         List<Question> questions = Arrays.asList(question1, question2, question3);
 
         when(mockQuestionRepository.findAll()).thenReturn(questions);
-        when(mockInputService.readLine()).thenReturn("Yury", "T", "Answer 1", "Answer 2", "Wrong", "no");
+        when(mockIOService.readLine()).thenReturn("Yury", "T", "Answer 1", "Answer 2", "Wrong", "no");
 
         quizServiceImpl.runQuiz();
 
-        verify(mockInputService, times(6)).readLine();
-        verify(mockOutputService).println(startsWith("Welcome to the quiz, Yury T!"));
-        verify(mockOutputService, times(3)).println(startsWith("Enter your answer:"));
-        verify(mockOutputService).println("Yury T, your score is: 2");
-        verify(mockQuestionPrintService, times(3)).printQuestion(any(Question.class));
+        verify(mockIOService, times(6)).readLine();
+        verify(mockIOService).println(startsWith("Welcome to the quiz, Yury T!"));
+        verify(mockIOService, times(3)).println(startsWith("Enter your answer:"));
+        verify(mockIOService).println("Yury T, your score is: 2 points");
     }
 }

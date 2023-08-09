@@ -13,9 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class QuizServiceImpl implements QuizService {
     private final QuestionRepository questionRepository;
-    private final QuestionPrintService questionPrintService;
-    private final InputService inputService;
-    private final OutputService outputService;
+    private final FormatterService formatterService;
+    private final IOService ioService;
 
     @Override
     public void runQuiz() {
@@ -29,17 +28,19 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private boolean askContinue() {
-        outputService.println("Do you want to continue? (yes/no)");
-        return inputService.readLine().toLowerCase().startsWith("y");
+        ioService.println("Do you want to continue? (yes/no)");
+        return ioService.readLine().toLowerCase().startsWith("y");
     }
 
     private User askUserData() {
-        outputService.println("Enter your first name:");
-        var firstName = inputService.readLine();
-        outputService.println("Enter your last name:");
-        var lastName = inputService.readLine();
+        ioService.println("Enter your first name:");
+        var firstName = ioService.readLine();
+        ioService.println("Enter your last name:");
+        var lastName = ioService.readLine();
         var user = new User(firstName, lastName);
-        outputService.println("Welcome to the quiz, " + user + "!");
+        ioService.println();
+        ioService.println("Welcome to the quiz, %s!".formatted(formatterService.formatUser(user)));
+        ioService.println();
         return user;
     }
 
@@ -53,17 +54,22 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private UserAnswer askQuestion(Question question) {
-        questionPrintService.printQuestion(question);
+        var formattedQuestion = formatterService.formatQuestion(question);
+        ioService.println(formattedQuestion);
+        ioService.println();
         return readUserInput();
     }
 
     private UserAnswer readUserInput() {
-        outputService.println("Enter your answer:");
-        var userAnswer = inputService.readLine();
+        ioService.println("Enter your answer:");
+        var userAnswer = ioService.readLine();
+        ioService.println();
         return new UserAnswer(userAnswer);
     }
 
     private void showResult(UserResult result) {
-        outputService.println(result.getUser() + ", your score is: " + result.getScore());
+        ioService.println("%s, your score is: %s".formatted(
+                formatterService.formatUser(result.getUser()),
+                formatterService.formatScore(result.getScore())));
     }
 }
