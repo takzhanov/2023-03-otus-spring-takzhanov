@@ -7,4 +7,6 @@
 
 * lesson-01-question-reader
 * lesson-02-quiz
-* 
+* hw03-quiz-boot (lesson-05)
+* hw04
+* lesson-05-quiz-boot-magic

@@ -1,0 +1,4 @@
+# You can comment all to use app with default
+app:
+  fileName: questions_ru.csv
+  locale: ru
