@@ -29,6 +29,7 @@
 
     <modules>
         <module>lesson-01-question-reader</module>
+        <module>lesson-09-books-jdbc</module>
     </modules>
 
     <dependencies>
@@ -61,7 +62,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>

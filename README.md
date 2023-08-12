@@ -5,5 +5,9 @@
 
 [Yury Takzhanov](https://takzhanov.github.io/)
 
-* lesson-01-question-reader
-* 
+Homeworks:
+* HW-01 lesson-01-question-reader
+* HW-02 lesson-02-quiz
+* HW-03
+* HW-04
+* HW-05 lesson-09-library-jdbc
