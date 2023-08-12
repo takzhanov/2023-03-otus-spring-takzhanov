@@ -7,6 +7,7 @@ import lombok.Getter;
 public class UserResult {
     @Getter
     private final User user;
+
     private final Map<Question, UserAnswer> userAnswers;
 
     public UserResult(User user) {

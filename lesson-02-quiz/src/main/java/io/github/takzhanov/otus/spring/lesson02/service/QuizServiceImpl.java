@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class QuizServiceImpl implements QuizService {
     private final QuestionRepository questionRepository;
+
     private final FormatterService formatterService;
+
     private final IOService ioService;
 
     @Override

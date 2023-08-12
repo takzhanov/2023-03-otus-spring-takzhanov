@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class IOServiceImpl implements IOService {
     private final PrintStream printStream;
+
     private final Scanner scanner;
 
     public IOServiceImpl(@Value("#{T(System).out}") PrintStream printStream,
