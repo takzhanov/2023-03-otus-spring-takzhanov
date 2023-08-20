@@ -2,12 +2,12 @@ package io.github.takzhanov.otus.spring.lesson07.shell;
 
 import io.github.takzhanov.otus.spring.lesson07.domain.Author;
 import io.github.takzhanov.otus.spring.lesson07.exception.ConstraintException;
+import io.github.takzhanov.otus.spring.lesson07.exception.EntityAlreadyExistsException;
 import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.service.AuthorFormatterService;
 import io.github.takzhanov.otus.spring.lesson07.service.AuthorService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -16,6 +16,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class AuthorCommands {
     private final AuthorService authorService;
+
     private final AuthorFormatterService authorFormatterService;
 
     @ShellMethod(value = "List all authors", key = {"la", "list-authors"})
@@ -42,7 +43,7 @@ public class AuthorCommands {
             return "Updated author: " + authorFormatterService.formatAuthor(savedAuthor);
         } catch (EntityNotFoundException e) {
             return "Error: Author not found with id: " + id;
-        } catch (DuplicateKeyException e) {
+        } catch (EntityAlreadyExistsException e) {
             return "Error: Author with name '%s' already exists".formatted(name);
         }
     }

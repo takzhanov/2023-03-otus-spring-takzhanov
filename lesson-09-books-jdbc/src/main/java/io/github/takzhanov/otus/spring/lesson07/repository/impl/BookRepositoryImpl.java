@@ -3,22 +3,41 @@ package io.github.takzhanov.otus.spring.lesson07.repository.impl;
 import io.github.takzhanov.otus.spring.lesson07.domain.Author;
 import io.github.takzhanov.otus.spring.lesson07.domain.Book;
 import io.github.takzhanov.otus.spring.lesson07.domain.Genre;
+import io.github.takzhanov.otus.spring.lesson07.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.lesson07.repository.BookRepository;
-import java.util.*;
+import io.github.takzhanov.otus.spring.lesson07.repository.GenreRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import static java.util.function.Function.identity;
 
 @Repository
 @RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
     private final NamedParameterJdbcOperations jdbc;
-    private final RowMapper<Book> bookRowMapper = (rs, rowNum) -> {
+
+    private final AuthorRepository authorRepository;
+
+    private final GenreRepository genreRepository;
+
+    private final RowMapper<Book> bookIdAndTitleRowMapper = (rs, rowNum) -> {
+        var id = rs.getLong("id");
+        var title = rs.getString("title");
+        return new Book(id, title, new HashSet<>(), new HashSet<>());
+    };
+
+    private final RowMapper<Book> bookFullRowMapper = (rs, rowNum) -> {
         Long id = rs.getLong("id");
         String title = rs.getString("title");
 
@@ -38,126 +57,168 @@ public class BookRepositoryImpl implements BookRepository {
         return new Book(id, title, authors, genres);
     };
 
+    private final ResultSetExtractor<List<Book>> booksResultSetExtractor = rs -> {
+        List<Book> flatBooks = new ArrayList<>();
+        int rowNum = 0;
+        while (rs.next()) {
+            flatBooks.add(bookFullRowMapper.mapRow(rs, rowNum++));
+        }
+        return mergeBooks(flatBooks);
+    };
+
     @Override
     public List<Book> findAll() {
-        String sql = """
-                SELECT b.*, a.id AS author_id, a.name AS author_name, g.id AS genre_id, g.name AS genre_name
-                FROM book b
-                LEFT JOIN book_author ba ON b.id = ba.book_id
-                LEFT JOIN author a ON a.id = ba.author_id
-                LEFT JOIN book_genre bg ON b.id = bg.book_id
-                LEFT JOIN genre g ON g.id = bg.genre_id;
-                """;
-        List<Book> booksWithRelations = jdbc.query(sql, bookRowMapper);
+        return findAllEffectiveImpl();
+    }
 
-        return mergeBooks(booksWithRelations);
+    private List<Book> findAllEffectiveImpl() {
+        var books = findAllIdAndTitleOnly().stream().collect(Collectors.toMap(Book::getId, identity()));
+        var authors = authorRepository.findAll().stream().collect(Collectors.toMap(Author::getId, identity()));
+        findAllB2aLinks().forEach(l -> books.get(l.bookId).getAuthors().add(authors.get(l.authorId)));
+        var genres = genreRepository.findAll().stream().collect(Collectors.toMap(Genre::getId, identity()));
+        findAllB2gLinks().forEach(l -> books.get(l.bookId).getGenres().add(genres.get(l.genreId)));
+
+        return books.values().stream().toList();
+    }
+
+    private List<Book> findAllNaiveIpml() {
+        String sql = """
+                SELECT b.id,
+                       b.title,
+                       a.id   AS author_id,
+                       a.name AS author_name,
+                       g.id   AS genre_id,
+                       g.name AS genre_name
+                FROM book b
+                         LEFT JOIN book_author ba ON b.id = ba.book_id
+                         LEFT JOIN author a ON a.id = ba.author_id
+                         LEFT JOIN book_genre bg ON b.id = bg.book_id
+                         LEFT JOIN genre g ON g.id = bg.genre_id;
+                """;
+
+        return jdbc.query(sql, booksResultSetExtractor);
+    }
+
+    private List<Book> findAllIdAndTitleOnly() {
+        var sql = "SELECT id, title FROM book b";
+        return jdbc.query(sql, bookIdAndTitleRowMapper);
+    }
+
+    private List<B2aLink> findAllB2aLinks() {
+        var sql = "SELECT book_id, author_id FROM book_author";
+        return jdbc.query(sql, (rs, rowNum) -> new B2aLink(rs.getLong("book_id"), rs.getLong("author_id")));
+    }
+
+    private List<B2gLink> findAllB2gLinks() {
+        var sql = "SELECT book_id, genre_id FROM book_genre";
+        return jdbc.query(sql, (rs, rowNum) -> new B2gLink(rs.getLong("book_id"), rs.getLong("genre_id")));
     }
 
     @Override
     public Book findById(Long id) {
         String sql = """
-                SELECT b.*, g.id AS genre_id, g.name AS genre_name, a.id AS author_id, a.name AS author_name
+                SELECT b.id,
+                       b.title,
+                       g.id   AS genre_id,
+                       g.name AS genre_name,
+                       a.id   AS author_id,
+                       a.name AS author_name
                 FROM book b
-                LEFT JOIN book_author ba ON b.id = ba.book_id
-                LEFT JOIN author a ON a.id = ba.author_id
-                LEFT JOIN book_genre bg ON b.id = bg.book_id
-                LEFT JOIN genre g ON g.id = bg.genre_id
+                         LEFT JOIN book_author ba ON b.id = ba.book_id
+                         LEFT JOIN author a ON a.id = ba.author_id
+                         LEFT JOIN book_genre bg ON b.id = bg.book_id
+                         LEFT JOIN genre g ON g.id = bg.genre_id
                 WHERE b.id = :id;
                 """;
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("id", id);
-        var books = jdbc.query(sql, params, bookRowMapper);
+
+        var books = jdbc.query(sql, new MapSqlParameterSource("id", id), booksResultSetExtractor);
         return mergeBooks(books).stream().findFirst().orElse(null);
     }
 
     @Override
     public Book create(Book book) {
-        String sql = "INSERT INTO book (title) VALUES (:title)";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("title", book.getTitle());
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        var sql = "INSERT INTO book (title) VALUES (:title)";
+        var params = new MapSqlParameterSource("title", book.getTitle());
+        var keyHolder = new GeneratedKeyHolder();
         jdbc.update(sql, params, keyHolder, new String[]{"id"});
         final long bookId = keyHolder.getKey().longValue();
 
-        sql = "INSERT INTO book_author (book_id, author_id) VALUES (:book_id, :author_id)";
-        for (Author author : book.getAuthors()) {
-            params = new MapSqlParameterSource();
-            params.addValue("book_id", bookId);
-            params.addValue("author_id", author.getId());
-            jdbc.update(sql, params);
-        }
-
-        sql = "INSERT INTO book_genre (book_id, genre_id) VALUES (:book_id, :genre_id)";
-        for (Genre genre : book.getGenres()) {
-            params = new MapSqlParameterSource();
-            params.addValue("book_id", bookId);
-            params.addValue("genre_id", genre.getId());
-            jdbc.update(sql, params);
-        }
+        insertBookToAuthor(bookId, book);
+        insertBookToGenre(bookId, book);
 
         return new Book(bookId, book.getTitle(), book.getAuthors(), book.getGenres());
     }
 
+    private void insertBookToAuthor(long bookId, Book book) {
+        var sql = "INSERT INTO book_author (book_id, author_id) VALUES (:book_id, :author_id)";
+        for (Author author : book.getAuthors()) {
+            var params = new MapSqlParameterSource();
+            params.addValue("book_id", bookId);
+            params.addValue("author_id", author.getId());
+            jdbc.update(sql, params);
+        }
+    }
+
+    private void insertBookToGenre(long bookId, Book book) {
+        var sql = "INSERT INTO book_genre (book_id, genre_id) VALUES (:book_id, :genre_id)";
+        for (Genre genre : book.getGenres()) {
+            var params = new MapSqlParameterSource();
+            params.addValue("book_id", bookId);
+            params.addValue("genre_id", genre.getId());
+            jdbc.update(sql, params);
+        }
+    }
+
     @Override
     public int update(Book book) {
-        String sql = "UPDATE book SET title = :title WHERE id = :id";
-        MapSqlParameterSource params = new MapSqlParameterSource();
+        var sql = "UPDATE book SET title = :title WHERE id = :id";
+        var params = new MapSqlParameterSource();
         params.addValue("title", book.getTitle());
         params.addValue("id", book.getId());
         final int updatedRowCount = jdbc.update(sql, params);
 
-        // Update authors
-        sql = "DELETE FROM book_author WHERE book_id = :id";
-        jdbc.update(sql, params);
+        deleteBookToAuthor(book.getId());
+        insertBookToAuthor(book.getId(), book);
 
-        sql = "INSERT INTO book_author (book_id, author_id) VALUES (:book_id, :author_id)";
-        for (Author author : book.getAuthors()) {
-            var b2aParams = new MapSqlParameterSource();
-            b2aParams.addValue("book_id", book.getId());
-            b2aParams.addValue("author_id", author.getId());
-            jdbc.update(sql, b2aParams);
-        }
-
-        // Update genres
-        sql = "DELETE FROM book_genre WHERE book_id = :id";
-        jdbc.update(sql, params);
-
-        sql = "INSERT INTO book_genre (book_id, genre_id) VALUES (:book_id, :genre_id)";
-        for (Genre genre : book.getGenres()) {
-            var g2aParams = new MapSqlParameterSource();
-            g2aParams.addValue("book_id", book.getId());
-            g2aParams.addValue("genre_id", genre.getId());
-            jdbc.update(sql, g2aParams);
-        }
+        deleteBookToGenre(book.getId());
+        insertBookToGenre(book.getId(), book);
 
         return updatedRowCount;
     }
 
+    private void deleteBookToAuthor(long bookId) {
+        var sql = "DELETE FROM book_author WHERE book_id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", bookId));
+    }
+
+    private void deleteBookToGenre(long bookId) {
+        var sql = "DELETE FROM book_genre WHERE book_id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", bookId));
+    }
+
     @Override
     public int delete(Long id) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("id", id);
-
-        String sql = "DELETE FROM book_author WHERE book_id = :id";
-        jdbc.update(sql, params);
-
-        sql = "DELETE FROM book_genre WHERE book_id = :id";
-        jdbc.update(sql, params);
-
-        sql = "DELETE FROM book WHERE id = :id";
-        return jdbc.update(sql, params);
+        var sql = "DELETE FROM book WHERE id = :id";
+        return jdbc.update(sql, new MapSqlParameterSource("id", id));
     }
 
     private List<Book> mergeBooks(List<Book> flatBooks) {
         return new ArrayList<>(flatBooks.stream()
                 .collect(Collectors.toMap(
                         Book::getId,
-                        book -> new Book(book.getId(), book.getTitle(), new HashSet<>(book.getAuthors()), new HashSet<>(book.getGenres())),
+                        book -> new Book(book.getId(), book.getTitle(), new HashSet<>(book.getAuthors()),
+                                new HashSet<>(book.getGenres())),
                         (book1, book2) -> {
                             book1.getAuthors().addAll(book2.getAuthors());
                             book1.getGenres().addAll(book2.getGenres());
                             return book1;
                         }
                 )).values());
+    }
+
+    private record B2aLink(long bookId, long authorId) {
+    }
+
+    private record B2gLink(long bookId, long genreId) {
     }
 }

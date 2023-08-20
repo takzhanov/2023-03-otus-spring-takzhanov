@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public final class Author {
     private final Long id;
+
     private final String name;
 
     public Author(Long id, String name) {

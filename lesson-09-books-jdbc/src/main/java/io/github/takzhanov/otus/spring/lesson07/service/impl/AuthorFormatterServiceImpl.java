@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 public class AuthorFormatterServiceImpl implements AuthorFormatterService {
     @Override
     public String formatAuthor(Author author) {
-        if (author == null) return "NULL";
+        if (author == null) {
+            return "NULL";
+        }
         return String.format("[ID: %d, Name: %s]", author.getId(), author.getName());
     }
 

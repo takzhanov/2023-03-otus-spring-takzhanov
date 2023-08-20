@@ -1,8 +1,9 @@
 package io.github.takzhanov.otus.spring.lesson07.service.impl;
 
 import io.github.takzhanov.otus.spring.lesson07.domain.Author;
+import io.github.takzhanov.otus.spring.lesson07.exception.AuthorAlreadyExistException;
+import io.github.takzhanov.otus.spring.lesson07.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.lesson07.service.AuthorService;
 import java.util.Arrays;
@@ -13,11 +14,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
@@ -28,14 +29,18 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public Author findOrCreateByName(String authorName) {
         var author = authorRepository.findByName(authorName);
         return author != null ? author : authorRepository.create(new Author(null, authorName));
     }
 
     @Override
+    @Transactional
     public Set<Author> findOrCreateByName(String[] authorNames) {
-        if (authorNames == null) return Collections.emptySet();
+        if (authorNames == null) {
+            return Collections.emptySet();
+        }
         return Arrays.stream(authorNames)
                 .map(String::trim)
                 .filter(Predicate.not(String::isEmpty))
@@ -51,11 +56,15 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author update(Author updatedAuthor) {
-        int updatedRowCount = authorRepository.update(updatedAuthor);
-        if (updatedRowCount == 0) {
-            throw new EntityNotFoundException();
+        try {
+            int updatedRowCount = authorRepository.update(updatedAuthor);
+            if (updatedRowCount == 0) {
+                throw new AuthorNotFoundException(updatedAuthor);
+            }
+            return updatedAuthor;
+        } catch (DuplicateKeyException e) {
+            throw new AuthorAlreadyExistException(updatedAuthor);
         }
-        return updatedAuthor;
     }
 
     @Override
@@ -68,6 +77,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public void forceDelete(Long id) {
         authorRepository.forceDelete(id);
     }

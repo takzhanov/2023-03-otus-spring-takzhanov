@@ -3,7 +3,7 @@ package io.github.takzhanov.otus.spring.lesson07.service.impl;
 import io.github.takzhanov.otus.spring.lesson07.domain.Author;
 import io.github.takzhanov.otus.spring.lesson07.domain.Book;
 import io.github.takzhanov.otus.spring.lesson07.domain.Genre;
-import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
+import io.github.takzhanov.otus.spring.lesson07.exception.BookNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.repository.BookRepository;
 import io.github.takzhanov.otus.spring.lesson07.service.AuthorService;
 import io.github.takzhanov.otus.spring.lesson07.service.GenreService;
@@ -12,27 +12,36 @@ import io.github.takzhanov.otus.spring.lesson07.service.dto.BookPatchRequest;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class BookServiceImplTest {
 
-    @Mock
+    @MockBean
     private AuthorService authorService;
 
-    @Mock
+    @MockBean
     private GenreService genreService;
 
-    @Mock
+    @MockBean
     private BookRepository bookRepository;
 
-    @InjectMocks
+    @Autowired
     private BookServiceImpl bookService;
 
     @Test
@@ -99,6 +108,6 @@ public class BookServiceImplTest {
         BookPatchRequest patchRequest = new BookPatchRequest(1L, "Updated Title", null, null);
         when(bookRepository.findById(1L)).thenReturn(null);
 
-        assertThrows(EntityNotFoundException.class, () -> bookService.patch(patchRequest));
+        assertThrows(BookNotFoundException.class, () -> bookService.patch(patchRequest));
     }
 }

@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 public class GenreFormatterServiceImpl implements GenreFormatterService {
     @Override
     public String formatGenre(Genre genre) {
-        if (genre == null) return "NULL";
+        if (genre == null) {
+            return "NULL";
+        }
         return String.format("[ID: %d, Name: %s]", genre.getId(), genre.getName());
     }
 

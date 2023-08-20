@@ -10,34 +10,39 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.Rollback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
-@Import(BookRepositoryImpl.class)
-@Rollback
+@Import({BookRepositoryImpl.class, AuthorRepositoryImpl.class, GenreRepositoryImpl.class})
 class BookRepositoryImplTest {
     @Autowired
     private BookRepository bookRepository;
 
     @Test
-    void findAll() {
+    void findById() {
+        var expectedBook = new Book(1L, "1984",
+                Set.of(new Author(1L, "George Orwell")),
+                Set.of(new Genre(1L, "Fiction"), new Genre(2L, "Non-Fiction")));
+
+        var actualBook = bookRepository.findById(1L);
+
+        assertThatBooksAreEquals(actualBook, expectedBook);
+    }
+
+    @Test
+    void findAll_checkFullness() {
         var expectedTitles = Set.of("1984", "Harry Potter and the Philosopher's Stone");
         var actualTitles = bookRepository.findAll().stream().map(Book::getTitle).collect(Collectors.toSet());
         assertThat(actualTitles).containsAll(expectedTitles);
     }
 
-
     @Test
-    void findById() {
-        var expectedBook = new Book(null, "1984",
-                Set.of(new Author("George Orwell")),
-                Set.of(new Genre("Non-Fiction"), new Genre("Fiction")));
-
-        var foundBook = bookRepository.findById(1L);
-
-        assertThatBookEquals(foundBook, expectedBook);
+    void findAll_checkCorrectness() {
+        for (var actual : bookRepository.findAll()) {
+            var expected = bookRepository.findById(actual.getId());
+            assertThatBooksAreEquals(actual, expected);
+        }
     }
 
     @Test
@@ -47,22 +52,25 @@ class BookRepositoryImplTest {
                 Set.of(new Genre(3L, "Doc"), new Genre(4L, "Science")));
 
         var createdBook = bookRepository.create(expectedBook);
-        assertThat(createdBook).isNotNull();
         assertThat(createdBook.getId()).isNotNull();
         var foundBook = bookRepository.findById(createdBook.getId());
-        assertThatBookEquals(foundBook, expectedBook);
+
+        assertThat(foundBook)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(expectedBook);
     }
 
     @Test
     void update() {
         var expectedBook = new Book(1L, "4891",
-                Set.of(new Author(1L, "George Orwell")),
+                Set.of(new Author(4L, "Pushkin")),
                 Set.of(new Genre(2L, "Non-Fiction")));
 
         bookRepository.update(expectedBook);
         var foundBook = bookRepository.findById(1L);
 
-        assertThatBookEquals(foundBook, expectedBook);
+        assertThatBooksAreEquals(foundBook, expectedBook);
     }
 
     @Test
@@ -72,13 +80,9 @@ class BookRepositoryImplTest {
         assertThat(bookRepository.findById(1L)).isNull();
     }
 
-    private void assertThatBookEquals(Book actual, Book expected) {
-        assertThat(actual.getTitle()).isEqualTo(expected.getTitle());
-
-        assertThat(actual.getAuthors().stream().map(Author::getName).collect(Collectors.toSet()))
-                .containsAll(expected.getAuthors().stream().map(Author::getName).collect(Collectors.toSet()));
-
-        assertThat(actual.getGenres().stream().map(Genre::getName).collect(Collectors.toSet()))
-                .containsAll(expected.getGenres().stream().map(Genre::getName).collect(Collectors.toSet()));
+    private void assertThatBooksAreEquals(Book actual, Book expected) {
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
     }
 }

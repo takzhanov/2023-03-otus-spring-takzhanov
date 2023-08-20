@@ -13,11 +13,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BookFormatterServiceImpl implements BookFormatterService {
     private final AuthorFormatterService authorFormatterService;
+
     private final GenreFormatterService genreFormatterService;
 
     @Override
     public String formatBook(Book book) {
-        if (book == null) return "NULL";
+        if (book == null) {
+            return "NULL";
+        }
         String genres = book.getGenres() != null && !book.getGenres().isEmpty()
                 ? book.getGenres().stream()
                 .map(genreFormatterService::formatGenre)

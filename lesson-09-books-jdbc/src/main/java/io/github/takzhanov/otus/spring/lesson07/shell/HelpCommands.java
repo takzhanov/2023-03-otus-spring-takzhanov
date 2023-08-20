@@ -20,9 +20,12 @@ public class HelpCommands {
                 - Delete a genre: dg or delete-genre --id 1
                                
                 - List all books: l or lb or list
-                - Create a new book: c or cb or create-book --title "Book Title" --genre "Genre Name" --authors "Author Name 1,Author Name 2"
-                - Update a book: ub or update-book --id 1 --title "Updated Book Title" --genre "Updated Genre Name" --authors "Updated Author Name 1,Updated Author Name 2"
-                - Patch a book: pb or patch-book --id 1 --title "Updated Book Title" --genre "Updated Genre Name" --authors "Updated Author Name 1,Updated Author Name 2"
+                - Create a new book: c or cb or create-book --title "Book Title" --genre "Genre Name" 
+                --authors "Author Name 1,Author Name 2"
+                - Update a book: ub or update-book --id 1 --title "Updated Book Title" --genre "Updated Genre Name" 
+                --authors "Updated Author Name 1,Updated Author Name 2"
+                - Patch a book: pb or patch-book --id 1 --title "Updated Book Title" --genre "Updated Genre Name" 
+                --authors "Updated Author Name 1,Updated Author Name 2"
                 - Delete a book: db or delete-book --id 1
                 """;
     }

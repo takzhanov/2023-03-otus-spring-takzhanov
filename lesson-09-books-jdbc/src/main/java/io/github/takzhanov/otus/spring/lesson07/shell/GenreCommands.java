@@ -2,12 +2,12 @@ package io.github.takzhanov.otus.spring.lesson07.shell;
 
 import io.github.takzhanov.otus.spring.lesson07.domain.Genre;
 import io.github.takzhanov.otus.spring.lesson07.exception.ConstraintException;
+import io.github.takzhanov.otus.spring.lesson07.exception.EntityAlreadyExistsException;
 import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.service.GenreFormatterService;
 import io.github.takzhanov.otus.spring.lesson07.service.GenreService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -16,6 +16,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class GenreCommands {
     private final GenreService genreService;
+
     private final GenreFormatterService genreFormatterService;
 
     @ShellMethod(value = "List all genres", key = {"lg", "list-genres"})
@@ -42,7 +43,7 @@ public class GenreCommands {
             return "Updated genre: " + genreFormatterService.formatGenre(savedGenre);
         } catch (EntityNotFoundException e) {
             return "Error: Genre not found with id: " + id;
-        } catch (DuplicateKeyException e) {
+        } catch (EntityAlreadyExistsException e) {
             return "Error: Genre with name '%s' already exists".formatted(name);
         }
     }

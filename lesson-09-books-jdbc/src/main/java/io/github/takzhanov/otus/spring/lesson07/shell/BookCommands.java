@@ -17,6 +17,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class BookCommands {
     private final BookService bookService;
+
     private final BookFormatterService bookFormatterService;
 
     @ShellMethod(value = "List all books", key = {"l", "lb", "list-books"})
@@ -27,8 +28,10 @@ public class BookCommands {
 
     @ShellMethod(value = "Create a new book", key = {"c", "cb", "create-book"})
     public String createBook(@ShellOption({"-t", "--title"}) String title,
-                             @ShellOption(value = {"-a", "--authors"}, defaultValue = ShellOption.NULL) String[] authors,
-                             @ShellOption(value = {"-g", "--genres"}, defaultValue = ShellOption.NULL) String[] genres) {
+                             @ShellOption(value = {"-a", "--authors"},
+                                     defaultValue = ShellOption.NULL) String[] authors,
+                             @ShellOption(value = {"-g", "--genres"},
+                                     defaultValue = ShellOption.NULL) String[] genres) {
 
         var bookCreateRequest = new BookCreateRequest(title, authors, genres);
         var savedBook = bookService.create(bookCreateRequest);
@@ -46,9 +49,12 @@ public class BookCommands {
 
     @ShellMethod(value = "Update a book", key = {"u", "ub", "update-book"})
     public String updateBook(@ShellOption(value = {"-i", "--id"}, help = "ID of the book") long id,
-                             @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL, help = "New title of the book") String title,
-                             @ShellOption(value = {"-a", "--authors"}, defaultValue = ShellOption.NULL, help = "New authors of the book, separated by commas") String[] authorNames,
-                             @ShellOption(value = {"-g", "--genres"}, defaultValue = ShellOption.NULL, help = "New genres of the book, separated by commas") String[] genreNames) {
+                             @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL,
+                                     help = "New title of the book") String title,
+                             @ShellOption(value = {"-a", "--authors"}, defaultValue = ShellOption.NULL,
+                                     help = "New authors of the book, separated by commas") String[] authorNames,
+                             @ShellOption(value = {"-g", "--genres"}, defaultValue = ShellOption.NULL,
+                                     help = "New genres of the book, separated by commas") String[] genreNames) {
 
         if (title == null) {
             return "Missing mandatory option '--title'";
@@ -64,9 +70,12 @@ public class BookCommands {
 
     @ShellMethod(value = "Patch a book", key = {"p", "pb", "patch-book"})
     public String patchBook(@ShellOption(value = {"-i", "--id"}, help = "ID of the book") long id,
-                            @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL, help = "New title of the book") String title,
-                            @ShellOption(value = {"-a", "--authors"}, defaultValue = ShellOption.NULL, help = "New authors of the book, separated by commas") String[] authorNames,
-                            @ShellOption(value = {"-g", "--genres"}, defaultValue = ShellOption.NULL, help = "New genres of the book, separated by commas") String[] genreNames) {
+                            @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL,
+                                    help = "New title of the book") String title,
+                            @ShellOption(value = {"-a", "--authors"}, defaultValue = ShellOption.NULL,
+                                    help = "New authors of the book, separated by commas") String[] authorNames,
+                            @ShellOption(value = {"-g", "--genres"}, defaultValue = ShellOption.NULL,
+                                    help = "New genres of the book, separated by commas") String[] genreNames) {
 
         try {
             var bookPatchRequest = new BookPatchRequest(id, title, authorNames, genreNames);

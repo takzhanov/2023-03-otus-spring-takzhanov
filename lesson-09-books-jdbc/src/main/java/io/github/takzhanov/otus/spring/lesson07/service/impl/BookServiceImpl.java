@@ -3,7 +3,7 @@ package io.github.takzhanov.otus.spring.lesson07.service.impl;
 import io.github.takzhanov.otus.spring.lesson07.domain.Author;
 import io.github.takzhanov.otus.spring.lesson07.domain.Book;
 import io.github.takzhanov.otus.spring.lesson07.domain.Genre;
-import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
+import io.github.takzhanov.otus.spring.lesson07.exception.BookNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.repository.BookRepository;
 import io.github.takzhanov.otus.spring.lesson07.service.AuthorService;
 import io.github.takzhanov.otus.spring.lesson07.service.BookService;
@@ -18,11 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final AuthorService authorService;
+
     private final GenreService genreService;
+
     private final BookRepository bookRepository;
 
     @Override
@@ -36,6 +37,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public Book create(BookCreateRequest book) {
         Set<Author> authors = authorService.findOrCreateByName(book.authorNames());
         Set<Genre> genres = genreService.findOrCreateByName(book.genreNames());
@@ -48,12 +50,13 @@ public class BookServiceImpl implements BookService {
     public Book update(Book updatedBook) {
         int updatedRowCount = bookRepository.update(updatedBook);
         if (updatedRowCount == 0) {
-            throw new EntityNotFoundException();
+            throw new BookNotFoundException(updatedBook);
         }
         return updatedBook;
     }
 
     @Override
+    @Transactional
     public Book update(BookUpdateRequest updateRequest) {
         var newAuthors = authorService.findOrCreateByName(updateRequest.authorNames());
         var newGenres = genreService.findOrCreateByName(updateRequest.genreNames());
@@ -62,9 +65,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public Book patch(BookPatchRequest patchRequest) {
         var oldBook = bookRepository.findById(patchRequest.id());
-        if (oldBook == null) throw new EntityNotFoundException();
+        if (oldBook == null) {
+            throw new BookNotFoundException(new Book(patchRequest.id(), null, null, null));
+        }
 
         var newTitle = patchRequest.title() != null
                 ? patchRequest.title()

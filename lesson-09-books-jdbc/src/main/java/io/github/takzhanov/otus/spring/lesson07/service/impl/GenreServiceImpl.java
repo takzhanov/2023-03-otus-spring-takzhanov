@@ -2,7 +2,8 @@ package io.github.takzhanov.otus.spring.lesson07.service.impl;
 
 import io.github.takzhanov.otus.spring.lesson07.domain.Genre;
 import io.github.takzhanov.otus.spring.lesson07.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.lesson07.exception.EntityNotFoundException;
+import io.github.takzhanov.otus.spring.lesson07.exception.GenreAlreadyExistException;
+import io.github.takzhanov.otus.spring.lesson07.exception.GenreNotFoundException;
 import io.github.takzhanov.otus.spring.lesson07.repository.GenreRepository;
 import io.github.takzhanov.otus.spring.lesson07.service.GenreService;
 import java.util.Arrays;
@@ -13,11 +14,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
@@ -33,14 +34,18 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     public Genre findOrCreateByName(String genreName) {
         var genre = genreRepository.findByName(genreName);
         return genre != null ? genre : genreRepository.create(new Genre(null, genreName));
     }
 
     @Override
+    @Transactional
     public Set<Genre> findOrCreateByName(String[] genreNames) {
-        if (genreNames == null) return Collections.emptySet();
+        if (genreNames == null) {
+            return Collections.emptySet();
+        }
         return Arrays.stream(genreNames)
                 .map(String::trim)
                 .filter(Predicate.not(String::isEmpty))
@@ -56,11 +61,15 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre update(Genre updatedGenre) {
-        int updatedRowCount = genreRepository.update(updatedGenre);
-        if (updatedRowCount == 0) {
-            throw new EntityNotFoundException();
+        try {
+            int updatedRowCount = genreRepository.update(updatedGenre);
+            if (updatedRowCount == 0) {
+                throw new GenreNotFoundException(updatedGenre);
+            }
+            return updatedGenre;
+        } catch (DuplicateKeyException e) {
+            throw new GenreAlreadyExistException(updatedGenre);
         }
-        return updatedGenre;
     }
 
     @Override
@@ -73,6 +82,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     public void forceDelete(Long id) {
         genreRepository.forceDelete(id);
     }
