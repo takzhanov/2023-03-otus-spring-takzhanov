@@ -16,9 +16,7 @@ public class QuizServiceImpl implements QuizService {
 
     private final FormatterService formatterService;
 
-    private final IOService ioService;
-
-    private final MessageService messageService;
+    private final IOFacade ioFacade;
 
     @Override
     public void runQuiz() {
@@ -32,20 +30,19 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private boolean askContinue() {
-        var msg = messageService.getMessage("msg.continue?");
-        ioService.println(msg);
-        return ioService.readLine().toLowerCase().startsWith("y");
+        ioFacade.printlnMsg("msg.continue?");
+        return ioFacade.readLine().toLowerCase().startsWith("y");
     }
 
     private User askUserData() {
-        ioService.println(messageService.getMessage("msg.firstName?"));
-        var firstName = ioService.readLine();
-        ioService.println(messageService.getMessage("msg.lastName?"));
-        var lastName = ioService.readLine();
+        ioFacade.printlnMsg("msg.firstName?");
+        var firstName = ioFacade.readLine();
+        ioFacade.printlnMsg("msg.lastName?");
+        var lastName = ioFacade.readLine();
         var user = new User(firstName, lastName);
-        ioService.println();
-        ioService.println(messageService.getMessage("msg.welcome", formatterService.formatUser(user)));
-        ioService.println();
+        ioFacade.println();
+        ioFacade.printlnMsg("msg.welcome", formatterService.formatUser(user));
+        ioFacade.println();
         return user;
     }
 
@@ -60,21 +57,21 @@ public class QuizServiceImpl implements QuizService {
 
     private UserAnswer askQuestion(Question question) {
         var formattedQuestion = formatterService.formatQuestion(question);
-        ioService.println(formattedQuestion);
-        ioService.println();
+        ioFacade.println(formattedQuestion);
+        ioFacade.println();
         return readUserInput();
     }
 
     private UserAnswer readUserInput() {
-        ioService.println(messageService.getMessage("msg.answer?"));
-        var userAnswer = ioService.readLine();
-        ioService.println();
+        ioFacade.printlnMsg("msg.answer?");
+        var userAnswer = ioFacade.readLine();
+        ioFacade.println();
         return new UserAnswer(userAnswer);
     }
 
     private void showResult(UserResult result) {
-        ioService.println(messageService.getMessage("msg.score",
+        ioFacade.printlnMsg("msg.score",
                 formatterService.formatUser(result.getUser()),
-                formatterService.formatScore(result.getScore())));
+                formatterService.formatScore(result.getScore()));
     }
 }

@@ -12,23 +12,26 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class FormatterServiceImplTest {
     @MockBean
-    private AppProperties mockAppProperties;
+    private CommandLineRunner disabledClr;
+
+    @MockBean
+    private AppProperties mockLocalizationProperties;
+
     @Autowired
     private FormatterService formatterService;
 
     @BeforeEach
     void setUp() {
-        when(mockAppProperties.getLocale()).thenReturn(Locale.ENGLISH);
+        when(mockLocalizationProperties.getLocale()).thenReturn(Locale.ENGLISH);
     }
 
     @Test

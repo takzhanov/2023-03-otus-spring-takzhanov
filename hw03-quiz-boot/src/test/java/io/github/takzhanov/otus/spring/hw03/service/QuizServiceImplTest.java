@@ -1,6 +1,6 @@
 package io.github.takzhanov.otus.spring.hw03.service;
 
-import io.github.takzhanov.otus.spring.hw03.config.AppProperties;
+import io.github.takzhanov.otus.spring.hw03.config.LocalizationProperties;
 import io.github.takzhanov.otus.spring.hw03.dao.QuestionRepository;
 import io.github.takzhanov.otus.spring.hw03.domain.Answer;
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
@@ -10,27 +10,35 @@ import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.startsWith;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class QuizServiceImplTest {
     @MockBean
+    private CommandLineRunner disabledClr;
+
+    @MockBean
     private QuestionRepository mockQuestionRepository;
+
     @MockBean
     private IOService mockIOService;
+
     @MockBean
-    private AppProperties mockAppProperties;
+    private LocalizationProperties mockLocalizationProperties;
+
     @Autowired
     private QuizServiceImpl quizServiceImpl;
 
     @BeforeEach
     void setUp() {
-        when(mockAppProperties.getLocale()).thenReturn(Locale.ENGLISH);
+        when(mockLocalizationProperties.getLocale()).thenReturn(Locale.ENGLISH);
     }
 
     @Test
@@ -46,6 +54,8 @@ class QuizServiceImplTest {
         quizServiceImpl.runQuiz();
 
         verify(mockIOService, times(6)).readLine();
+        verify(mockIOService).println(startsWith("Enter your first name:"));
+        verify(mockIOService).println(startsWith("Enter your last name:"));
         verify(mockIOService).println(startsWith("Welcome to the quiz, Yury T!"));
         verify(mockIOService, times(3)).println(startsWith("Enter your answer:"));
         verify(mockIOService).println("Yury T, your score is: 2 points");

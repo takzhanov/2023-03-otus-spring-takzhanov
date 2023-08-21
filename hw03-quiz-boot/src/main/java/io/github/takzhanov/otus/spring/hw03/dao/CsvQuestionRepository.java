@@ -1,6 +1,6 @@
 package io.github.takzhanov.otus.spring.hw03.dao;
 
-import io.github.takzhanov.otus.spring.hw03.config.AppProperties;
+import io.github.takzhanov.otus.spring.hw03.config.RepoProperties;
 import io.github.takzhanov.otus.spring.hw03.domain.Answer;
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
 import io.github.takzhanov.otus.spring.hw03.exception.QuestionReadException;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class CsvQuestionRepository implements QuestionRepository {
-    private final AppProperties appProperties;
+    private final RepoProperties repoProperties;
 
     @Override
     public List<Question> findAll() {
@@ -26,7 +26,7 @@ public class CsvQuestionRepository implements QuestionRepository {
     }
 
     private List<String> readLinesFromFile() {
-        var fileName = appProperties.getFileName();
+        var fileName = repoProperties.getFileName();
         List<String> lines = new ArrayList<>();
 
         try (var inputStream = new ClassPathResource(fileName).getInputStream();

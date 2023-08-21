@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "app")
-public class AppProperties {
+public class AppProperties implements RepoProperties, LocalizationProperties {
     private String fileName = "questions.csv";
+
     private Locale locale = Locale.US;
 }
