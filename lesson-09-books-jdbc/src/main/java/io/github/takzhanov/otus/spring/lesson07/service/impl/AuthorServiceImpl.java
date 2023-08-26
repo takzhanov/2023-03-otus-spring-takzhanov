@@ -24,6 +24,7 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Author> findAll() {
         return authorRepository.findAll();
     }
@@ -50,11 +51,13 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public Author create(Author newAuthor) {
         return authorRepository.create(newAuthor);
     }
 
     @Override
+    @Transactional
     public Author update(Author updatedAuthor) {
         try {
             int updatedRowCount = authorRepository.update(updatedAuthor);
@@ -68,6 +71,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         try {
             authorRepository.delete(id);

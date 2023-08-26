@@ -1,1 +1,6 @@
-spring.shell.interactive.enabled: false
+spring:
+  shell.interactive.enabled: false
+
+  sql.init:
+    mode: always
+    data-locations: data.sql

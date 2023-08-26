@@ -37,7 +37,7 @@ public class BookRepositoryImpl implements BookRepository {
         return new Book(id, title, new HashSet<>(), new HashSet<>());
     };
 
-    private final RowMapper<Book> bookFullRowMapper = (rs, rowNum) -> {
+    private final RowMapper<Book> rawBookRowMapper = (rs, rowNum) -> {
         Long id = rs.getLong("id");
         String title = rs.getString("title");
 
@@ -61,42 +61,32 @@ public class BookRepositoryImpl implements BookRepository {
         List<Book> flatBooks = new ArrayList<>();
         int rowNum = 0;
         while (rs.next()) {
-            flatBooks.add(bookFullRowMapper.mapRow(rs, rowNum++));
+            flatBooks.add(rawBookRowMapper.mapRow(rs, rowNum++));
         }
         return mergeBooks(flatBooks);
     };
 
     @Override
     public List<Book> findAll() {
-        return findAllEffectiveImpl();
-    }
-
-    private List<Book> findAllEffectiveImpl() {
         var books = findAllIdAndTitleOnly().stream().collect(Collectors.toMap(Book::getId, identity()));
-        var authors = authorRepository.findAll().stream().collect(Collectors.toMap(Author::getId, identity()));
-        findAllB2aLinks().forEach(l -> books.get(l.bookId).getAuthors().add(authors.get(l.authorId)));
-        var genres = genreRepository.findAll().stream().collect(Collectors.toMap(Genre::getId, identity()));
-        findAllB2gLinks().forEach(l -> books.get(l.bookId).getGenres().add(genres.get(l.genreId)));
+
+        var authorList = authorRepository.findAll();
+        var authorsById = authorList.stream()
+                .collect(Collectors.toMap(Author::getId, identity()));
+        var bookToAuthorLinks = findAllB2aLinks();
+        for (var link : bookToAuthorLinks) {
+            books.get(link.bookId).getAuthors().add(authorsById.get(link.authorId));
+        }
+
+        var genreList = genreRepository.findAll();
+        var genresById = genreList.stream()
+                .collect(Collectors.toMap(Genre::getId, identity()));
+        var bookToGenreLinks = findAllB2gLinks();
+        for (var link : bookToGenreLinks) {
+            books.get(link.bookId).getGenres().add(genresById.get(link.genreId));
+        }
 
         return books.values().stream().toList();
-    }
-
-    private List<Book> findAllNaiveIpml() {
-        String sql = """
-                SELECT b.id,
-                       b.title,
-                       a.id   AS author_id,
-                       a.name AS author_name,
-                       g.id   AS genre_id,
-                       g.name AS genre_name
-                FROM book b
-                         LEFT JOIN book_author ba ON b.id = ba.book_id
-                         LEFT JOIN author a ON a.id = ba.author_id
-                         LEFT JOIN book_genre bg ON b.id = bg.book_id
-                         LEFT JOIN genre g ON g.id = bg.genre_id;
-                """;
-
-        return jdbc.query(sql, booksResultSetExtractor);
     }
 
     private List<Book> findAllIdAndTitleOnly() {
@@ -116,7 +106,7 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book findById(Long id) {
-        String sql = """
+        var sql = """
                 SELECT b.id,
                        b.title,
                        g.id   AS genre_id,

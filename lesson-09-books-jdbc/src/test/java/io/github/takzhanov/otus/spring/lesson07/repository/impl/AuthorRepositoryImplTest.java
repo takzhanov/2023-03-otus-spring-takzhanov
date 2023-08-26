@@ -20,11 +20,11 @@ class AuthorRepositoryImplTest {
     @Autowired
     private AuthorRepository authorRepository;
 
-    private final Author ORWELL = new Author(1L, "George Orwell");
+    private final Author ORWELL = new Author(1L, "Test Author 1");
 
     @Test
     void findAll() {
-        var expectedNames = Set.of("Ernest Hemingway", "George Orwell", "J.K. Rowling");
+        var expectedNames = Set.of("Test Author 1", "Test Author 2", "Test Author 3");
         var actualNames = authorRepository.findAll().stream().map(Author::getName).collect(Collectors.toSet());
         assertThat(actualNames).containsAll(expectedNames);
     }

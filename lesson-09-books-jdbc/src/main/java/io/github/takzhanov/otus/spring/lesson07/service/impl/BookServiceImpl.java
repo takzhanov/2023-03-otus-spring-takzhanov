@@ -27,11 +27,13 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Book> findAll() {
         return bookRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Book findById(Long id) {
         return bookRepository.findById(id);
     }
@@ -47,6 +49,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public Book update(Book updatedBook) {
         int updatedRowCount = bookRepository.update(updatedBook);
         if (updatedRowCount == 0) {
@@ -87,6 +90,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         bookRepository.delete(id);
     }

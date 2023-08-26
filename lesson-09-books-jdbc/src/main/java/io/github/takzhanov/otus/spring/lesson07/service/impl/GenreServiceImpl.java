@@ -24,11 +24,13 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Genre> findAll() {
         return genreRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Genre findById(Long id) {
         return genreRepository.findById(id);
     }
@@ -55,11 +57,13 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     public Genre create(Genre newGenre) {
         return genreRepository.create(newGenre);
     }
 
     @Override
+    @Transactional
     public Genre update(Genre updatedGenre) {
         try {
             int updatedRowCount = genreRepository.update(updatedGenre);
@@ -73,6 +77,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         try {
             genreRepository.delete(id);

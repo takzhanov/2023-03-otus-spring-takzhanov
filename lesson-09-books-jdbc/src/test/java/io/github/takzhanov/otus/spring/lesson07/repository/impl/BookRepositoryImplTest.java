@@ -22,8 +22,8 @@ class BookRepositoryImplTest {
     @Test
     void findById() {
         var expectedBook = new Book(1L, "1984",
-                Set.of(new Author(1L, "George Orwell")),
-                Set.of(new Genre(1L, "Fiction"), new Genre(2L, "Non-Fiction")));
+                Set.of(new Author(1L, "Test Author 1")),
+                Set.of(new Genre(1L, "Test Genre 1"), new Genre(2L, "Test Genre 2")));
 
         var actualBook = bookRepository.findById(1L);
 
@@ -47,9 +47,9 @@ class BookRepositoryImplTest {
 
     @Test
     void create() {
-        var expectedBook = new Book(null, "NEW_BOOK",
-                Set.of(new Author(3L, "Ernest Hemingway"), new Author(4L, "Pushkin")),
-                Set.of(new Genre(3L, "Doc"), new Genre(4L, "Science")));
+        var expectedBook = new Book(null, "Test Book 1",
+                Set.of(new Author(3L, "Test Author 3"), new Author(2L, "Test Author 2")),
+                Set.of(new Genre(3L, "Test Genre 3"), new Genre(1L, "Test Genre 1")));
 
         var createdBook = bookRepository.create(expectedBook);
         assertThat(createdBook.getId()).isNotNull();
@@ -64,8 +64,8 @@ class BookRepositoryImplTest {
     @Test
     void update() {
         var expectedBook = new Book(1L, "4891",
-                Set.of(new Author(4L, "Pushkin")),
-                Set.of(new Genre(2L, "Non-Fiction")));
+                Set.of(new Author(3L, "Test Author 3")),
+                Set.of(new Genre(2L, "Test Genre 2")));
 
         bookRepository.update(expectedBook);
         var foundBook = bookRepository.findById(1L);
