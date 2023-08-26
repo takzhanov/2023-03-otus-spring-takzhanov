@@ -41,6 +41,12 @@ class LocalizedMessageServiceTest {
     }
 
     @Test
+    void getMessage_ruRuLocale() {
+        when(mockLocalizationProperties.getLocale()).thenReturn(Locale.forLanguageTag("ru-RU"));
+        assertEquals("Вы хотите продолжить? (да/нет) (y/n)", messageService.getMessage("msg.continue?"));
+    }
+
+    @Test
     void getMessage_wrongLocale() {
         when(mockLocalizationProperties.getLocale()).thenReturn(new Locale("wrong"));
         assertEquals("Do you want to continue? (yes/no)", messageService.getMessage("msg.continue?"));

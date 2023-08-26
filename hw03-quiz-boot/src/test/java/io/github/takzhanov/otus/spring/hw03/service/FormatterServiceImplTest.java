@@ -4,6 +4,7 @@ import io.github.takzhanov.otus.spring.hw03.config.AppProperties;
 import io.github.takzhanov.otus.spring.hw03.domain.Answer;
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
 import io.github.takzhanov.otus.spring.hw03.domain.User;
+import io.github.takzhanov.otus.spring.hw03.service.converter.ScoreConverter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,9 @@ class FormatterServiceImplTest {
     @Autowired
     private FormatterService formatterService;
 
+    @Autowired
+    private ScoreConverter scoreConverter;
+
     @BeforeEach
     void setUp() {
         when(mockLocalizationProperties.getLocale()).thenReturn(Locale.ENGLISH);
@@ -50,7 +54,7 @@ class FormatterServiceImplTest {
                                 
                 Q: Question 3
                 A: Answer 3""";
-        Assertions.assertEquals(expected, formatterService.formatQuestions(questions));
+        Assertions.assertEquals(expected, formatterService.format(questions));
     }
 
     @Test
@@ -59,16 +63,16 @@ class FormatterServiceImplTest {
         val expected = """
                 Q: Question 1
                 A: Answer 1""";
-        Assertions.assertEquals(expected, formatterService.formatQuestion(question1));
+        Assertions.assertEquals(expected, formatterService.format(question1));
     }
 
     @Test
     void formatUser() {
-        Assertions.assertEquals("First Last", formatterService.formatUser(new User("First", "Last")));
+        Assertions.assertEquals("First Last", formatterService.format(new User("First", "Last")));
     }
 
     @Test
     void formatScore() {
-        Assertions.assertEquals("13 points", formatterService.formatScore(13));
+        Assertions.assertEquals("13 points", formatterService.format(13L));
     }
 }
