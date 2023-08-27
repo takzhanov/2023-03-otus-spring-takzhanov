@@ -29,6 +29,7 @@
 
     <modules>
         <module>lesson-01-question-reader</module>
+        <module>lesson-02-quiz</module>
         <module>lesson-09-books-jdbc</module>
     </modules>
 
