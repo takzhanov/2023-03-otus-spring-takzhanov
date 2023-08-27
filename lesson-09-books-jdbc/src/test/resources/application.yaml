@@ -1,0 +1,6 @@
+spring:
+  shell.interactive.enabled: false
+
+  sql.init:
+    mode: always
+    data-locations: data.sql
