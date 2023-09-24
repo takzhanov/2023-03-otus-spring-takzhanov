@@ -26,37 +26,37 @@ class LocalizedMessageServiceTest {
     void getMessage_nullLocale_ruDefault() {
         Locale.setDefault(Locale.forLanguageTag("ru"));
         when(mockLocalizationProperties.getLocale()).thenReturn(null);
-        assertEquals("Вы хотите продолжить? (да/нет) (y/n)", messageService.getMessage("msg.continue?"));
+        assertEquals("Вы хотите продолжить? (да/нет) (y/n) ", messageService.getMessage("msg.continue?"));
     }
 
     @Test
     void getMessage_nullLocale_unsupportedDefault() {
         Locale.setDefault(Locale.forLanguageTag("unsupported"));
         when(mockLocalizationProperties.getLocale()).thenReturn(null);
-        assertEquals("Do you want to continue? (yes/no)", messageService.getMessage("msg.continue?"));
+        assertEquals("Do you want to continue? (yes/no) ", messageService.getMessage("msg.continue?"));
     }
 
     @Test
     void getMessage_enLocale() {
         when(mockLocalizationProperties.getLocale()).thenReturn(new Locale("en"));
-        assertEquals("Do you want to continue? (yes/no)", messageService.getMessage("msg.continue?"));
+        assertEquals("Do you want to continue? (yes/no) ", messageService.getMessage("msg.continue?"));
     }
 
     @Test
     void getMessage_ruLocale() {
         when(mockLocalizationProperties.getLocale()).thenReturn(new Locale("ru"));
-        assertEquals("Вы хотите продолжить? (да/нет) (y/n)", messageService.getMessage("msg.continue?"));
+        assertEquals("Вы хотите продолжить? (да/нет) (y/n) ", messageService.getMessage("msg.continue?"));
     }
 
     @Test
     void getMessage_ruRuLocale() {
         when(mockLocalizationProperties.getLocale()).thenReturn(Locale.forLanguageTag("ru-RU"));
-        assertEquals("Вы хотите продолжить? (да/нет) (y/n)", messageService.getMessage("msg.continue?"));
+        assertEquals("Вы хотите продолжить? (да/нет) (y/n) ", messageService.getMessage("msg.continue?"));
     }
 
     @Test
     void getMessage_wrongLocale() {
         when(mockLocalizationProperties.getLocale()).thenReturn(new Locale("wrong"));
-        assertEquals("Do you want to continue? (yes/no)", messageService.getMessage("msg.continue?"));
+        assertEquals("Do you want to continue? (yes/no) ", messageService.getMessage("msg.continue?"));
     }
 }

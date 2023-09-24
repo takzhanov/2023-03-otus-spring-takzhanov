@@ -19,6 +19,10 @@ public class IOServiceImpl implements IOService {
         this.scanner = new Scanner(inputStream);
     }
 
+    @Override
+    public void print(String s) {
+        printStream.print(s);
+    }
 
     @Override
     public void println(String s) {

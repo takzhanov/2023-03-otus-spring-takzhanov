@@ -1,11 +1,9 @@
 package io.github.takzhanov.otus.spring.hw03.service;
 
 public interface IOService {
-    void println(String s);
+    void print(String s);
 
-    default void println() {
-        println("");
-    }
+    void println(String s);
 
     String readLine();
 }

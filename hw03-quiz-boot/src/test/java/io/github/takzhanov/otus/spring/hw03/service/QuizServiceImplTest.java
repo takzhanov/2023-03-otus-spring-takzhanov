@@ -54,10 +54,10 @@ class QuizServiceImplTest {
         quizServiceImpl.runQuiz();
 
         verify(mockIOService, times(6)).readLine();
-        verify(mockIOService).println(startsWith("Enter your first name:"));
-        verify(mockIOService).println(startsWith("Enter your last name:"));
-        verify(mockIOService).println(startsWith("Welcome to the quiz, Yury T!"));
-        verify(mockIOService, times(3)).println(startsWith("Enter your answer:"));
-        verify(mockIOService).println("Yury T, your score is: 2 points");
+        verify(mockIOService).print(startsWith("Enter your first name:"));
+        verify(mockIOService).print(startsWith("Enter your last name:"));
+        verify(mockIOService).print(startsWith("Welcome to the quiz, Yury T!"));
+        verify(mockIOService, times(3)).print(startsWith("Enter your answer: "));
+        verify(mockIOService).print("Yury T, your score is: 2 points");
     }
 }

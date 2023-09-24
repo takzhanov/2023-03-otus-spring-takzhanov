@@ -7,7 +7,12 @@ public interface IOFacade {
         println("");
     }
 
-    String readLine();
+    String readLine(String msgKey);
 
-    void printlnMsg(String msgKey, Object... params);
+    void printMsg(String msgKey, Object... args);
+
+    default void printlnMsg(String key, Object... args) {
+        printMsg(key, args);
+        println();
+    }
 }

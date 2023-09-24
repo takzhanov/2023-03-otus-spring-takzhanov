@@ -30,15 +30,12 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private boolean askContinue() {
-        ioFacade.printlnMsg("msg.continue?");
-        return ioFacade.readLine().toLowerCase().startsWith("y");
+        return ioFacade.readLine("msg.continue?").toLowerCase().startsWith("y");
     }
 
     private User askUserData() {
-        ioFacade.printlnMsg("msg.firstName?");
-        var firstName = ioFacade.readLine();
-        ioFacade.printlnMsg("msg.lastName?");
-        var lastName = ioFacade.readLine();
+        var firstName = ioFacade.readLine("msg.firstName?");
+        var lastName = ioFacade.readLine("msg.lastName?");
         var user = new User(firstName, lastName);
         ioFacade.println();
         ioFacade.printlnMsg("msg.welcome", formatterService.format(user));
@@ -63,8 +60,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private UserAnswer readUserInput() {
-        ioFacade.printlnMsg("msg.answer?");
-        var userAnswer = ioFacade.readLine();
+        var userAnswer = ioFacade.readLine("msg.answer?");
         ioFacade.println();
         return new UserAnswer(userAnswer);
     }

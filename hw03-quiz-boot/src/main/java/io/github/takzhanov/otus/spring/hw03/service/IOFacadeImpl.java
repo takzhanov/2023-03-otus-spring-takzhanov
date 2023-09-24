@@ -11,9 +11,9 @@ public class IOFacadeImpl implements IOFacade {
     private final MessageService messageService;
 
     @Override
-    public void printlnMsg(String key, Object... args) {
-        final String msg = messageService.getMessage(key, args);
-        ioService.println(msg);
+    public void printMsg(String msgKey, Object... args) {
+        final String msg = messageService.getMessage(msgKey, args);
+        ioService.print(msg);
     }
 
     @Override
@@ -22,7 +22,8 @@ public class IOFacadeImpl implements IOFacade {
     }
 
     @Override
-    public String readLine() {
+    public String readLine(String msgKey) {
+        printMsg(msgKey);
         return ioService.readLine();
     }
 }
