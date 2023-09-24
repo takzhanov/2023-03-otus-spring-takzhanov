@@ -5,7 +5,6 @@ import io.github.takzhanov.otus.spring.hw03.domain.Question;
 import io.github.takzhanov.otus.spring.hw03.domain.User;
 import io.github.takzhanov.otus.spring.hw03.domain.UserAnswer;
 import io.github.takzhanov.otus.spring.hw03.domain.UserResult;
-import io.github.takzhanov.otus.spring.hw03.service.converter.ScoreConverter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,6 @@ public class QuizServiceImpl implements QuizService {
     private final QuestionRepository questionRepository;
 
     private final FormatterService formatterService;
-
-    private final ScoreConverter scoreConverter;
 
     private final IOFacade ioFacade;
 

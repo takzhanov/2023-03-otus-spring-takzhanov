@@ -3,8 +3,8 @@ package io.github.takzhanov.otus.spring.hw03.service;
 import io.github.takzhanov.otus.spring.hw03.config.AppProperties;
 import io.github.takzhanov.otus.spring.hw03.domain.Answer;
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
+import io.github.takzhanov.otus.spring.hw03.domain.Score;
 import io.github.takzhanov.otus.spring.hw03.domain.User;
-import io.github.takzhanov.otus.spring.hw03.service.converter.ScoreConverter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -29,9 +29,6 @@ class FormatterServiceImplTest {
 
     @Autowired
     private FormatterService formatterService;
-
-    @Autowired
-    private ScoreConverter scoreConverter;
 
     @BeforeEach
     void setUp() {
@@ -73,6 +70,6 @@ class FormatterServiceImplTest {
 
     @Test
     void formatScore() {
-        Assertions.assertEquals("13 points", formatterService.format(13L));
+        Assertions.assertEquals("13 points", formatterService.format(new Score(13)));
     }
 }

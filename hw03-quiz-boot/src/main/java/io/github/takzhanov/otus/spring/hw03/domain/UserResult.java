@@ -19,10 +19,11 @@ public class UserResult {
         userAnswers.put(question, userAnswer);
     }
 
-    public long getScore() {
-        return userAnswers.entrySet().stream()
+    public Score getScore() {
+        final long countScore = userAnswers.entrySet().stream()
                 .filter(entry -> isAnswerCorrect(entry.getKey(), entry.getValue()))
                 .count();
+        return new Score(countScore);
     }
 
     private boolean isAnswerCorrect(Question question, UserAnswer userAnswer) {
