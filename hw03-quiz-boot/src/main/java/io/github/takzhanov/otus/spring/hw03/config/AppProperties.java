@@ -19,6 +19,7 @@ public class AppProperties implements RepoProperties, LocalizationProperties {
 
     @PostConstruct
     private void initLocaleContextHolder() {
+        // потому что при вызове конверторов на базе принтеров конвершн сервис передает им локаль отсюда
         LocaleContextHolder.setLocale(locale);
     }
 }

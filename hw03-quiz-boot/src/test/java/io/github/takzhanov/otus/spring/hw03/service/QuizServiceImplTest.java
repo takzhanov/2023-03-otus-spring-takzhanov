@@ -34,7 +34,7 @@ class QuizServiceImplTest {
     private LocalizationProperties mockLocalizationProperties;
 
     @Autowired
-    private QuizServiceImpl quizServiceImpl;
+    private InteractiveServiceImpl interactiveService;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +51,7 @@ class QuizServiceImplTest {
         when(mockQuestionRepository.findAll()).thenReturn(questions);
         when(mockIOService.readLine()).thenReturn("Yury", "T", "Answer 1", "Answer 2", "Wrong", "no");
 
-        quizServiceImpl.runQuiz();
+        interactiveService.runQuiz();
 
         verify(mockIOService, times(6)).readLine();
         verify(mockIOService).print(startsWith("Enter your first name:"));

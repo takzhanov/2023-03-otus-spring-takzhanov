@@ -8,6 +8,7 @@ public class UserResult {
     @Getter
     private final User user;
 
+    @Getter
     private final Map<Question, UserAnswer> userAnswers;
 
     public UserResult(User user) {
@@ -18,18 +19,4 @@ public class UserResult {
     public void add(Question question, UserAnswer userAnswer) {
         userAnswers.put(question, userAnswer);
     }
-
-    public Score getScore() {
-        final long countScore = userAnswers.entrySet().stream()
-                .filter(entry -> isAnswerCorrect(entry.getKey(), entry.getValue()))
-                .count();
-        return new Score(countScore);
-    }
-
-    private boolean isAnswerCorrect(Question question, UserAnswer userAnswer) {
-        return question.answers().stream()
-                .filter(Answer::isCorrect)
-                .anyMatch(answer -> answer.text().equalsIgnoreCase(userAnswer.text()));
-    }
-
 }

@@ -1,6 +1,6 @@
 package io.github.takzhanov.otus.spring.hw03.runner;
 
-import io.github.takzhanov.otus.spring.hw03.service.QuizService;
+import io.github.takzhanov.otus.spring.hw03.service.InteractiveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CommandLineAppRunner implements CommandLineRunner {
-    private final QuizService quizService;
+    private final InteractiveService interactiveService;
 
     @Override
     public void run(String... args) {
-        quizService.runQuiz();
+        interactiveService.runQuiz();
     }
 }
