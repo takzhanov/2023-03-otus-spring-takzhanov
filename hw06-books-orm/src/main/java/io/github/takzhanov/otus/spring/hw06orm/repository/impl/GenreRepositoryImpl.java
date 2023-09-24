@@ -2,73 +2,68 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class GenreRepositoryImpl implements GenreRepository {
-    private final NamedParameterJdbcOperations jdbc;
-
-    private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> {
-        return new Genre(rs.getLong("id"), rs.getString("name"));
-    };
+    @PersistenceContext
+    private final EntityManager em;
 
     @Override
     public List<Genre> findAll() {
-        var sql = "SELECT id, name FROM genre";
-        return jdbc.query(sql, genreRowMapper);
+        TypedQuery<Genre> query = em.createQuery("SELECT g FROM Genre g", Genre.class);
+        return query.getResultList();
     }
 
     @Override
     public Genre findById(Long id) {
-        var sql = "SELECT id, name FROM genre WHERE id = :id";
-        var params = new MapSqlParameterSource("id", id);
-        return jdbc.query(sql, params, genreRowMapper).stream().findFirst().orElse(null);
+        return em.find(Genre.class, id);
     }
 
     @Override
     public Genre findByName(String name) {
-        var sql = "SELECT id, name FROM genre WHERE name = :name";
-        var params = new MapSqlParameterSource("name", name);
-        return jdbc.query(sql, params, genreRowMapper).stream().findFirst().orElse(null);
+        TypedQuery<Genre> query = em.createQuery("SELECT g FROM Genre g WHERE g.name = :name", Genre.class);
+        query.setParameter("name", name);
+        return Optional.ofNullable(query.getSingleResult()).orElse(null);
     }
 
     @Override
     public Genre create(Genre genre) {
-        var sql = "INSERT INTO genre (name) VALUES (:name)";
-        var params = new MapSqlParameterSource("name", genre.getName());
-        var keyHolder = new GeneratedKeyHolder();
-        jdbc.update(sql, params, keyHolder, new String[]{"id"});
-        return new Genre(keyHolder.getKey().longValue(), genre.getName());
+        em.persist(genre);
+        return genre;
     }
 
     @Override
     public int update(Genre genre) {
-        var sql = "UPDATE genre SET name = :name WHERE id = :id";
-        var params = new MapSqlParameterSource();
-        params.addValue("name", genre.getName());
-        params.addValue("id", genre.getId());
-        return jdbc.update(sql, params);
+        em.merge(genre);
+        return 1;  // Assumed to be successful. Adjust if needed.
     }
 
     @Override
     public int delete(Long id) {
-        var sql = "DELETE FROM genre WHERE id = :id";
-        return jdbc.update(sql, new MapSqlParameterSource("id", id));
+        Genre genre = em.find(Genre.class, id);
+        if (genre != null) {
+            em.remove(genre);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
     public int forceDelete(Long id) {
-        var sql = "DELETE FROM book_genre WHERE genre_id = :id";
-        jdbc.update(sql, new MapSqlParameterSource("id", id));
+        // First, manually delete relations in the book_genre table.
+        em.createNativeQuery("DELETE FROM book_genre WHERE genre_id = :genreId")
+                .setParameter("genreId", id)
+                .executeUpdate();
 
+        // Then delete the genre.
         return delete(id);
     }
 }
-

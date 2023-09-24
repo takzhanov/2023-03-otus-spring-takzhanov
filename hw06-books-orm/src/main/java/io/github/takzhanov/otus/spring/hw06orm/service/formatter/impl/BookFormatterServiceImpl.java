@@ -1,12 +1,14 @@
-package io.github.takzhanov.otus.spring.hw06orm.service.impl;
+package io.github.takzhanov.otus.spring.hw06orm.service.formatter.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
-import io.github.takzhanov.otus.spring.hw06orm.service.AuthorFormatterService;
-import io.github.takzhanov.otus.spring.hw06orm.service.BookFormatterService;
-import io.github.takzhanov.otus.spring.hw06orm.service.GenreFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.AuthorFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.BookFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.Printer;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +17,8 @@ public class BookFormatterServiceImpl implements BookFormatterService {
     private final AuthorFormatterService authorFormatterService;
 
     private final GenreFormatterService genreFormatterService;
+
+    private final Printer<Comment> commentPrinter;
 
     @Override
     public String formatBook(Book book) {
@@ -31,10 +35,16 @@ public class BookFormatterServiceImpl implements BookFormatterService {
                 .map(authorFormatterService::formatAuthor)
                 .collect(Collectors.joining(", "))
                 : "Unknown";
-        return String.format("ID: %d\nTitle: %s\nGenre: %s\nAuthors: %s\n",
+        String comments = book.getComments() != null && !book.getComments().isEmpty()
+                ? book.getComments().stream()
+                .map(c -> commentPrinter.print(c, null))
+                .collect(Collectors.joining(", "))
+                : "Unknown";
+        return String.format("ID: %d\nTitle: %s\nGenre: %s\nAuthors: %s\nComments: %s\n",
                 book.getId(), book.getTitle(),
                 genres,
-                authors);
+                authors,
+                comments);
     }
 
     @Override

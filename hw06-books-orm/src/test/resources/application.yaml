@@ -1,6 +1,13 @@
 spring:
   shell.interactive.enabled: false
 
-  sql.init:
-    mode: always
-    data-locations: data.sql
+  jpa:
+    show-sql: true
+    hibernate.ddl-auto: none
+  sql:
+    init:
+      data-locations: data.sql
+
+logging:
+  level:
+    sql: debug

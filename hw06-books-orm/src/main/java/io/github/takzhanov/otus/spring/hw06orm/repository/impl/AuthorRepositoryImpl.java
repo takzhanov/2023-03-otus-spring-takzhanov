@@ -2,73 +2,76 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
 public class AuthorRepositoryImpl implements AuthorRepository {
-    private final NamedParameterJdbcOperations jdbc;
-
-    private final RowMapper<Author> authorRowMapper = (rs, rowNum) -> {
-        return new Author(rs.getLong("id"), rs.getString("name"));
-    };
+    @PersistenceContext
+    private final EntityManager em;
 
     @Override
     public List<Author> findAll() {
-        var sql = "SELECT id, name FROM author";
-        return jdbc.query(sql, authorRowMapper);
+        return em.createQuery("SELECT a FROM Author a", Author.class).getResultList();
     }
 
     @Override
-    public Author findById(Long id) {
-        var sql = "SELECT id, name FROM author WHERE id = :id";
-        var params = new MapSqlParameterSource("id", id);
-        return jdbc.query(sql, params, authorRowMapper).stream().findFirst().orElse(null);
+    public Optional<Author> findById(Long id) {
+        return Optional.ofNullable(em.find(Author.class, id));
     }
 
     @Override
-    public Author findByName(String name) {
-        var sql = "SELECT id, name FROM author WHERE name = :name";
-        var params = new MapSqlParameterSource("name", name);
-        return jdbc.query(sql, params, authorRowMapper).stream().findFirst().orElse(null);
+    public Optional<Author> findByName(String name) {
+        try {
+            final Author author = em.createQuery("SELECT a FROM Author a WHERE a.name = :name", Author.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+            return Optional.ofNullable(author);
+        } catch (NoResultException ignore) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public Author create(Author author) {
-        var sql = "INSERT INTO author (name) VALUES (:name)";
-        var params = new MapSqlParameterSource("name", author.getName());
-        var keyHolder = new GeneratedKeyHolder();
-        jdbc.update(sql, params, keyHolder, new String[]{"id"});
-        return new Author(keyHolder.getKey().longValue(), author.getName());
+        try {
+            if (author.getId() == null) {
+                em.persist(author);
+            } else {
+                return em.merge(author);
+            }
+            return author;
+        } catch (ConstraintViolationException ex) {
+            throw new DuplicateKeyException(ex.getConstraintName(), ex);
+        }
     }
 
     @Override
-    public int update(Author author) {
-        var sql = "UPDATE author SET name = :name WHERE id = :id";
-        var params = new MapSqlParameterSource();
-        params.addValue("name", author.getName());
-        params.addValue("id", author.getId());
-        return jdbc.update(sql, params);
+    public Author update(Author author) {
+        return em.merge(author);
     }
 
     @Override
-    public int delete(Long id) {
-        var sql = "DELETE FROM author WHERE id = :id";
-        var params = new MapSqlParameterSource("id", id);
-        return jdbc.update(sql, params);
+    public void delete(Long id) {
+        Author author = em.find(Author.class, id);
+        if (author != null) {
+            em.remove(author);
+        }
     }
 
     @Override
-    public int forceDelete(Long id) {
-        var sql = "DELETE FROM book_author WHERE author_id = :id";
-        jdbc.update(sql, new MapSqlParameterSource("id", id));
-
-        return delete(id);
+    public void forceDelete(Long id) {
+        em.createNativeQuery("DELETE FROM book_author WHERE author_id = :authorId")
+                .setParameter("authorId", id)
+                .executeUpdate();
+        delete(id);
     }
 }

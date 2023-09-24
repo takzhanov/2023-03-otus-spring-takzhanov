@@ -1,7 +1,7 @@
-package io.github.takzhanov.otus.spring.hw06orm.service.impl;
+package io.github.takzhanov.otus.spring.hw06orm.service.formatter.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import io.github.takzhanov.otus.spring.hw06orm.service.AuthorFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.AuthorFormatterService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;

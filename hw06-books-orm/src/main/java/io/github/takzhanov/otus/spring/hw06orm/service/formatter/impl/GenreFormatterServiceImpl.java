@@ -1,7 +1,7 @@
-package io.github.takzhanov.otus.spring.hw06orm.service.impl;
+package io.github.takzhanov.otus.spring.hw06orm.service.formatter.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
-import io.github.takzhanov.otus.spring.hw06orm.service.GenreFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;

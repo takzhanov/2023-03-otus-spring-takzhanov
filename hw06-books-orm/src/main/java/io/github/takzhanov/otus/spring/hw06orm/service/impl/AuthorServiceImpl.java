@@ -1,8 +1,6 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorAlreadyExistException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
@@ -14,7 +12,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +29,8 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author findOrCreateByName(String authorName) {
-        var author = authorRepository.findByName(authorName);
-        return author != null ? author : authorRepository.create(new Author(null, authorName));
+        return authorRepository.findByName(authorName)
+                .orElseGet(() -> authorRepository.create(new Author(null, authorName)));
     }
 
     @Override
@@ -59,15 +56,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author update(Author updatedAuthor) {
-        try {
-            int updatedRowCount = authorRepository.update(updatedAuthor);
-            if (updatedRowCount == 0) {
-                throw new AuthorNotFoundException(updatedAuthor);
-            }
-            return updatedAuthor;
-        } catch (DuplicateKeyException e) {
-            throw new AuthorAlreadyExistException(updatedAuthor);
-        }
+        return authorRepository.update(updatedAuthor);
     }
 
     @Override

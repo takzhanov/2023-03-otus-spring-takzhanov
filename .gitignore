@@ -14,3 +14,4 @@ buildNumber.properties
 *.out
 *.iml
 .idea/
+*.db

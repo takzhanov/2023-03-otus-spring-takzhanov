@@ -34,6 +34,7 @@
         <module>hw03-quiz-boot</module>
         <module>hw05-books-jdbc</module>
         <module>hw06-books-orm</module>
+<!--        <module>hw07-books-data-jpa</module>-->
     </modules>
 
     <dependencies>

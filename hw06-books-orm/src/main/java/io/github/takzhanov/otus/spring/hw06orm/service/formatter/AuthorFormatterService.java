@@ -1,4 +1,4 @@
-package io.github.takzhanov.otus.spring.hw06orm.service;
+package io.github.takzhanov.otus.spring.hw06orm.service.formatter;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import java.util.List;

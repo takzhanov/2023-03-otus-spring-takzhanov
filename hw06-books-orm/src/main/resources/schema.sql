@@ -29,3 +29,11 @@ CREATE TABLE book_genre
     genre_id INT REFERENCES genre (id),
     PRIMARY KEY (book_id, genre_id)
 );
+
+CREATE TABLE comment
+(
+    id        IDENTITY PRIMARY KEY,
+    text      VARCHAR(1024) NOT NULL,
+    book_id   INT REFERENCES book (id) ON DELETE CASCADE,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

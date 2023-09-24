@@ -4,16 +4,17 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
+@DataJpaTest
 @Import({BookRepositoryImpl.class, AuthorRepositoryImpl.class, GenreRepositoryImpl.class})
 class BookRepositoryImplTest {
     @Autowired
@@ -23,7 +24,8 @@ class BookRepositoryImplTest {
     void findById() {
         var expectedBook = new Book(1L, "1984",
                 Set.of(new Author(1L, "Test Author 1")),
-                Set.of(new Genre(1L, "Test Genre 1"), new Genre(2L, "Test Genre 2")));
+                Set.of(new Genre(1L, "Test Genre 1"), new Genre(2L, "Test Genre 2")),
+                Collections.emptySet());
 
         var actualBook = bookRepository.findById(1L);
 

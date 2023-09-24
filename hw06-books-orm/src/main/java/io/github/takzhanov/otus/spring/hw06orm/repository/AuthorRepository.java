@@ -2,19 +2,20 @@ package io.github.takzhanov.otus.spring.hw06orm.repository;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import java.util.List;
+import java.util.Optional;
 
 public interface AuthorRepository {
-    Author findByName(String name);
+    Optional<Author> findByName(String name);
 
-    int forceDelete(Long id);
+    void forceDelete(Long id);
 
     List<Author> findAll();
 
-    Author findById(Long id);
+    Optional<Author> findById(Long id);
 
     Author create(Author entity);
 
-    int update(Author entity);
+    Author update(Author entity);
 
-    int delete(Long id);
+    void delete(Long id);
 }

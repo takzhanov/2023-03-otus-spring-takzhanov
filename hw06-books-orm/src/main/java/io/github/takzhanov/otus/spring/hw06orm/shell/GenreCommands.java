@@ -4,7 +4,7 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.EntityAlreadyExistsException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
-import io.github.takzhanov.otus.spring.hw06orm.service.GenreFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

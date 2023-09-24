@@ -4,12 +4,13 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookUpdateRequest;
+import io.github.takzhanov.otus.spring.hw06orm.service.impl.BookServiceImpl.BookDto;
 import java.util.List;
 
 public interface BookService {
     List<Book> findAll();
 
-    Book findById(Long id);
+    BookDto findById(Long id);
 
     Book create(BookCreateRequest book);
 

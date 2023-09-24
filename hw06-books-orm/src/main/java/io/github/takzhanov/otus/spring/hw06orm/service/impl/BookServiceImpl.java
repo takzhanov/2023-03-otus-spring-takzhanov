@@ -2,6 +2,7 @@ package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
+import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.exception.BookNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
@@ -13,6 +14,8 @@ import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookUpdateRequest;
 import java.util.List;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +37,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public Book findById(Long id) {
-        return bookRepository.findById(id);
+    public BookDto findById(Long id) {
+        var book = bookRepository.findById(id);
+        return BookDto.fromBook(book);
     }
 
     @Override
@@ -72,7 +76,7 @@ public class BookServiceImpl implements BookService {
     public Book patch(BookPatchRequest patchRequest) {
         var oldBook = bookRepository.findById(patchRequest.id());
         if (oldBook == null) {
-            throw new BookNotFoundException(new Book(patchRequest.id(), null, null, null));
+            throw new BookNotFoundException(new Book(patchRequest.id(), null, null, null, null));
         }
 
         var newTitle = patchRequest.title() != null
@@ -95,5 +99,33 @@ public class BookServiceImpl implements BookService {
         bookRepository.delete(id);
     }
 
+
+    @Data
+    @AllArgsConstructor
+    public static class BookDto {
+        private Long id;
+
+        private String title;
+
+        private Set<Author> authors;
+
+        private Set<Genre> genres;
+
+        private Set<Comment> comments;
+
+        public static BookDto fromBook(Book book) {
+            return new BookDto(book.getId(), book.getTitle(),
+                    Set.copyOf(book.getAuthors()),
+                    Set.copyOf(book.getGenres()),
+                    Set.copyOf(book.getComments()));
+        }
+
+        public static Book toBook(BookDto book) {
+            return new Book(book.getId(), book.getTitle(),
+                    book.getAuthors(),
+                    book.getGenres(),
+                    book.getComments());
+        }
+    }
 }
 

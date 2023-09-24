@@ -2,16 +2,18 @@ package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
-import io.github.takzhanov.otus.spring.hw06orm.service.BookFormatterService;
 import io.github.takzhanov.otus.spring.hw06orm.service.BookService;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookUpdateRequest;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.BookFormatterService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+
+import static io.github.takzhanov.otus.spring.hw06orm.service.impl.BookServiceImpl.BookDto;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class BookCommands {
         if (foundBook == null) {
             return "Book not found with id: " + id;
         }
-        return "Book with id = " + id + ":\n" + bookFormatterService.formatBook(foundBook);
+        return "Book with id = " + id + ":\n" + bookFormatterService.formatBook(BookDto.toBook(foundBook));
     }
 
     @ShellMethod(value = "Update a book", key = {"u", "ub", "update-book"})
