@@ -1,3 +1,7 @@
+spring:
+  messages:
+      fallback-to-system-locale: false
+
 # You can comment all to use app with default
 app:
   fileName: questions_ru.csv

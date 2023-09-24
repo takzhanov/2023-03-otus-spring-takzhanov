@@ -23,7 +23,15 @@ class LocalizedMessageServiceTest {
     private LocalizedMessageService messageService;
 
     @Test
-    void getMessage_nullLocale() {
+    void getMessage_nullLocale_ruDefault() {
+        Locale.setDefault(Locale.forLanguageTag("ru"));
+        when(mockLocalizationProperties.getLocale()).thenReturn(null);
+        assertEquals("Вы хотите продолжить? (да/нет) (y/n)", messageService.getMessage("msg.continue?"));
+    }
+
+    @Test
+    void getMessage_nullLocale_unsupportedDefault() {
+        Locale.setDefault(Locale.forLanguageTag("unsupported"));
         when(mockLocalizationProperties.getLocale()).thenReturn(null);
         assertEquals("Do you want to continue? (yes/no)", messageService.getMessage("msg.continue?"));
     }
