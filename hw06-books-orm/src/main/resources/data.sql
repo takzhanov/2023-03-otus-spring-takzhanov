@@ -21,3 +21,7 @@ VALUES (1, 1),
 INSERT INTO book_genre (book_id, genre_id)
 VALUES (1, 1),
        (1, 2);
+
+INSERT INTO comment (TEXT, BOOK_ID)
+VALUES ('Nice story!', 1),
+       ('Not interested', 1);

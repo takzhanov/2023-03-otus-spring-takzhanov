@@ -4,7 +4,9 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
+import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.BookNotFoundException;
+import io.github.takzhanov.otus.spring.hw06orm.exception.GenreNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
 import io.github.takzhanov.otus.spring.hw06orm.service.BookService;
@@ -13,9 +15,8 @@ import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookUpdateRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,9 +38,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public BookDto findById(Long id) {
-        var book = bookRepository.findById(id);
-        return BookDto.fromBook(book);
+    public Optional<Book> findById(Long id) {
+        return bookRepository.findById(id);
     }
 
     @Override
@@ -49,17 +49,15 @@ public class BookServiceImpl implements BookService {
         Set<Genre> genres = genreService.findOrCreateByName(book.genreNames());
 
         var newBook = new Book(null, book.title(), authors, genres);
-        return bookRepository.create(newBook);
+        return bookRepository.save(newBook);
     }
 
     @Override
     @Transactional
     public Book update(Book updatedBook) {
-        int updatedRowCount = bookRepository.update(updatedBook);
-        if (updatedRowCount == 0) {
-            throw new BookNotFoundException(updatedBook);
-        }
-        return updatedBook;
+        bookRepository.findById(updatedBook.getId())
+                .orElseThrow(() -> new BookNotFoundException(updatedBook.getId()));
+        return bookRepository.save(updatedBook);
     }
 
     @Override
@@ -74,10 +72,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public Book patch(BookPatchRequest patchRequest) {
-        var oldBook = bookRepository.findById(patchRequest.id());
-        if (oldBook == null) {
-            throw new BookNotFoundException(new Book(patchRequest.id(), null, null, null, null));
-        }
+        var oldBook = bookRepository.findById(patchRequest.id())
+                .orElseThrow(() -> new BookNotFoundException(patchRequest.id()));
 
         var newTitle = patchRequest.title() != null
                 ? patchRequest.title()
@@ -99,33 +95,74 @@ public class BookServiceImpl implements BookService {
         bookRepository.delete(id);
     }
 
+    @Override
+    @Transactional
+    public Comment addCommentToBook(long id, String commentText) {
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
 
-    @Data
-    @AllArgsConstructor
-    public static class BookDto {
-        private Long id;
+        var newComment = new Comment(commentText);
+        book.getComments().add(newComment);
 
-        private String title;
-
-        private Set<Author> authors;
-
-        private Set<Genre> genres;
-
-        private Set<Comment> comments;
-
-        public static BookDto fromBook(Book book) {
-            return new BookDto(book.getId(), book.getTitle(),
-                    Set.copyOf(book.getAuthors()),
-                    Set.copyOf(book.getGenres()),
-                    Set.copyOf(book.getComments()));
-        }
-
-        public static Book toBook(BookDto book) {
-            return new Book(book.getId(), book.getTitle(),
-                    book.getAuthors(),
-                    book.getGenres(),
-                    book.getComments());
-        }
+        bookRepository.save(book);
+        return newComment;
     }
+
+    @Override
+    @Transactional
+    public Author addAuthorToBook(long id, long authorId) {
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+
+        var author = authorService.findById(authorId)
+                .orElseThrow(() -> new AuthorNotFoundException(authorId));
+
+        book.getAuthors().add(author);
+        bookRepository.save(book);
+        return author;
+    }
+
+    @Override
+    @Transactional
+    public Author removeAuthor(long id, long authorId) {
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+
+        var author = authorService.findById(authorId)
+                .orElseThrow(() -> new AuthorNotFoundException(authorId));
+
+        book.getAuthors().remove(author);
+        bookRepository.save(book);
+        return author;
+    }
+
+    @Override
+    @Transactional
+    public Genre addGenre(long id, long genreId) {
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+
+        var genre = genreService.findById(genreId)
+                .orElseThrow(() -> new GenreNotFoundException(genreId));
+
+        book.getGenres().add(genre);
+        bookRepository.save(book);
+        return genre;
+    }
+
+    @Override
+    @Transactional
+    public Genre removeGenre(long id, long genreId) {
+        var book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+
+        var genre = genreService.findById(genreId)
+                .orElseThrow(() -> new GenreNotFoundException(genreId));
+
+        book.getGenres().remove(genre);
+        bookRepository.save(book);
+        return genre;
+    }
+
 }
 

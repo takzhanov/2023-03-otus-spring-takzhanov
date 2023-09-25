@@ -13,8 +13,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import static io.github.takzhanov.otus.spring.hw06orm.service.impl.BookServiceImpl.BookDto;
-
 @ShellComponent
 @RequiredArgsConstructor
 public class BookCommands {
@@ -43,12 +41,13 @@ public class BookCommands {
     @ShellMethod(value = "Read a book", key = {"r", "rb", "read-book"})
     public String readBook(@ShellOption Long id) {
         var foundBook = bookService.findById(id);
-        if (foundBook == null) {
+        if (foundBook.isEmpty()) {
             return "Book not found with id: " + id;
         }
-        return "Book with id = " + id + ":\n" + bookFormatterService.formatBook(BookDto.toBook(foundBook));
+        return "Book with id = " + id + ":\n" + bookFormatterService.formatBook(foundBook.get());
     }
 
+    //old
     @ShellMethod(value = "Update a book", key = {"u", "ub", "update-book"})
     public String updateBook(@ShellOption(value = {"-i", "--id"}, help = "ID of the book") long id,
                              @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL,
@@ -70,6 +69,7 @@ public class BookCommands {
         }
     }
 
+    //old
     @ShellMethod(value = "Patch a book", key = {"p", "pb", "patch-book"})
     public String patchBook(@ShellOption(value = {"-i", "--id"}, help = "ID of the book") long id,
                             @ShellOption(value = {"-t", "--title"}, defaultValue = ShellOption.NULL,

@@ -3,6 +3,7 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
@@ -23,27 +24,31 @@ public class GenreRepositoryImpl implements GenreRepository {
     }
 
     @Override
-    public Genre findById(Long id) {
-        return em.find(Genre.class, id);
+    public Optional<Genre> findById(Long id) {
+        return Optional.ofNullable(em.find(Genre.class, id));
     }
 
     @Override
-    public Genre findByName(String name) {
-        TypedQuery<Genre> query = em.createQuery("SELECT g FROM Genre g WHERE g.name = :name", Genre.class);
-        query.setParameter("name", name);
-        return Optional.ofNullable(query.getSingleResult()).orElse(null);
+    public Optional<Genre> findByName(String name) {
+        try {
+            var genre = em.createQuery("SELECT g FROM Genre g " +
+                                       "WHERE g.name = :name", Genre.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+            return Optional.ofNullable(genre);
+        } catch (NoResultException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Genre create(Genre genre) {
-        em.persist(genre);
-        return genre;
-    }
-
-    @Override
-    public int update(Genre genre) {
-        em.merge(genre);
-        return 1;  // Assumed to be successful. Adjust if needed.
+    public Genre save(Genre genre) {
+        if (genre.getId() == null) {
+            em.persist(genre);
+            return genre;
+        } else {
+            return em.merge(genre);
+        }
     }
 
     @Override

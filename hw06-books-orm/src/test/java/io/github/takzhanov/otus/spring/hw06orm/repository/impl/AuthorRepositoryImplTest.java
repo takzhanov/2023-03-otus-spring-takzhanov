@@ -2,7 +2,6 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.hibernate.exception.ConstraintViolationException;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,7 +64,7 @@ class AuthorRepositoryImplTest {
         assertThat(authorRepository.findByName(authorName))
                 .isEmpty();
 
-        var createdAuthor = authorRepository.create(new Author(authorName));
+        var createdAuthor = authorRepository.save(new Author(authorName));
 
         assertThat(createdAuthor.getId()).isNotNull();
         assertThat(authorRepository.findByName(authorName))
@@ -76,16 +74,16 @@ class AuthorRepositoryImplTest {
     @Test
     void create_throwException() {
         final String authorName = "UNIQ_NAME";
-        assertThat(authorRepository.create(new Author(authorName))).isNotNull();
-        assertThatThrownBy(() -> authorRepository.create(new Author(authorName)))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThat(authorRepository.save(new Author(authorName))).isNotNull();
+        assertThatThrownBy(() -> authorRepository.save(new Author(authorName)))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
-    void update() {
+    void save() {
         var newAuthorName = "changed";
         final Author expected = new Author(1L, newAuthorName);
-        assertThat(authorRepository.update(new Author(ORWELL.getId(), newAuthorName)))
+        assertThat(authorRepository.save(new Author(ORWELL.getId(), newAuthorName)))
                 .isEqualTo(expected);
         assertThat(authorRepository.findById(ORWELL.getId()))
                 .contains(expected);
@@ -94,7 +92,7 @@ class AuthorRepositoryImplTest {
     @Test
     void update_throwException() {
         assertThatThrownBy(() -> {
-            authorRepository.update(new Author(2L, ORWELL.getName()));
+            authorRepository.save(new Author(2L, ORWELL.getName()));
             em.flush();
         }).isInstanceOf(ConstraintViolationException.class);
     }

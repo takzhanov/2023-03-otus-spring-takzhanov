@@ -1,16 +1,19 @@
 package io.github.takzhanov.otus.spring.hw06orm.service;
 
+import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
+import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
+import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookUpdateRequest;
-import io.github.takzhanov.otus.spring.hw06orm.service.impl.BookServiceImpl.BookDto;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookService {
     List<Book> findAll();
 
-    BookDto findById(Long id);
+    Optional<Book> findById(Long id);
 
     Book create(BookCreateRequest book);
 
@@ -21,4 +24,14 @@ public interface BookService {
     Book patch(BookPatchRequest patchRequest);
 
     void delete(Long id);
+
+    Comment addCommentToBook(long id, String commentText);
+
+    Author addAuthorToBook(long bookId, long authorId);
+
+    Author removeAuthor(long bookId, long authorId);
+
+    Genre addGenre(long id, long genreId);
+
+    Genre removeGenre(long id, long genreId);
 }

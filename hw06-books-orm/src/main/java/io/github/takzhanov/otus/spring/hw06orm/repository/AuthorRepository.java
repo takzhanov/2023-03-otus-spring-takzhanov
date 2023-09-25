@@ -5,17 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AuthorRepository {
-    Optional<Author> findByName(String name);
-
-    void forceDelete(Long id);
-
     List<Author> findAll();
 
     Optional<Author> findById(Long id);
 
-    Author create(Author entity);
+    Optional<Author> findByName(String name);
 
-    Author update(Author entity);
+    Author save(Author entity);
 
     void delete(Long id);
+
+    void forceDelete(Long id);
 }

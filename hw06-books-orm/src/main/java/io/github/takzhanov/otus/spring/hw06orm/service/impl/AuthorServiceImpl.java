@@ -1,12 +1,14 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
+import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,7 +32,12 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional
     public Author findOrCreateByName(String authorName) {
         return authorRepository.findByName(authorName)
-                .orElseGet(() -> authorRepository.create(new Author(null, authorName)));
+                .orElseGet(() -> authorRepository.save(new Author(authorName)));
+    }
+
+    @Override
+    public Optional<Author> findById(long authorId) {
+        return authorRepository.findById(authorId);
     }
 
     @Override
@@ -50,13 +57,17 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author create(Author newAuthor) {
-        return authorRepository.create(newAuthor);
+        return authorRepository.save(newAuthor);
     }
 
     @Override
     @Transactional
     public Author update(Author updatedAuthor) {
-        return authorRepository.update(updatedAuthor);
+        return authorRepository.findById(updatedAuthor.getId()).stream()
+                .peek(c -> c.setName(updatedAuthor.getName()))
+                .peek(c -> authorRepository.save(c))
+                .findFirst()
+                .orElseThrow(() -> new AuthorNotFoundException(updatedAuthor));
     }
 
     @Override

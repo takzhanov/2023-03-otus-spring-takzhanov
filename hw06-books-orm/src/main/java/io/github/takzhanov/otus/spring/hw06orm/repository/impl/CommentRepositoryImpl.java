@@ -5,6 +5,7 @@ import io.github.takzhanov.otus.spring.hw06orm.repository.CommentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -25,8 +26,8 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
-    public Comment findById(Long id) {
-        return em.find(Comment.class, id);
+    public Optional<Comment> findById(Long id) {
+        return Optional.ofNullable(em.find(Comment.class, id));
     }
 
     @Override

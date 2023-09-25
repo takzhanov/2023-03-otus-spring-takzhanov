@@ -8,8 +8,6 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
@@ -31,32 +29,24 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     @Override
     public Optional<Author> findByName(String name) {
         try {
-            final Author author = em.createQuery("SELECT a FROM Author a WHERE a.name = :name", Author.class)
+            var author = em.createQuery("SELECT a FROM Author a " +
+                                        "WHERE a.name = :name", Author.class)
                     .setParameter("name", name)
                     .getSingleResult();
             return Optional.ofNullable(author);
-        } catch (NoResultException ignore) {
+        } catch (NoResultException ex) {
             return Optional.empty();
         }
     }
 
     @Override
-    public Author create(Author author) {
-        try {
-            if (author.getId() == null) {
-                em.persist(author);
-            } else {
-                return em.merge(author);
-            }
+    public Author save(Author author) {
+        if (author.getId() == null) {
+            em.persist(author);
             return author;
-        } catch (ConstraintViolationException ex) {
-            throw new DuplicateKeyException(ex.getConstraintName(), ex);
+        } else {
+            return em.merge(author);
         }
-    }
-
-    @Override
-    public Author update(Author author) {
-        return em.merge(author);
     }
 
     @Override

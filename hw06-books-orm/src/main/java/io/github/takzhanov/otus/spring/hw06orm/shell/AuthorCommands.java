@@ -1,13 +1,12 @@
 package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.EntityAlreadyExistsException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
-import io.github.takzhanov.otus.spring.hw06orm.service.formatter.AuthorFormatterService;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.AuthorFormatterService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -43,7 +42,7 @@ public class AuthorCommands {
             return "Updated author: " + authorFormatterService.formatAuthor(savedAuthor);
         } catch (EntityNotFoundException e) {
             return "Error: Author not found with id: " + id;
-        } catch (EntityAlreadyExistsException e) {
+        } catch (DataIntegrityViolationException e) {
             return "Error: Author with name '%s' already exists".formatted(name);
         }
     }
@@ -55,7 +54,7 @@ public class AuthorCommands {
         } else {
             try {
                 authorService.delete(id);
-            } catch (ConstraintException e) {
+            } catch (DataIntegrityViolationException e) {
                 return "There are links. Try to use with --force option";
             }
         }

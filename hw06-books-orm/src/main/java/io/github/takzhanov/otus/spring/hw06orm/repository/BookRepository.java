@@ -2,15 +2,14 @@ package io.github.takzhanov.otus.spring.hw06orm.repository;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookRepository {
     List<Book> findAll();
 
-    Book findById(Long id);
+    Optional<Book> findById(Long id);
 
-    Book create(Book entity);
+    Book save(Book entity);
 
-    int update(Book entity);
-
-    int delete(Long id);
+    void delete(Long id);
 }

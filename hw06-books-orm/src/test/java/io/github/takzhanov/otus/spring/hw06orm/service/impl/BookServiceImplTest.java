@@ -10,6 +10,7 @@ import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class BookServiceImplTest {
         verify(authorService, never()).findOrCreateByName(anyString());
         verify(genreService, never()).findOrCreateByName(anyString());
         var expectedBook = new Book(null, expectedTitle, Collections.emptySet(), Collections.emptySet());
-        verify(bookRepository, only()).create(eq(expectedBook));
+        verify(bookRepository, only()).save(eq(expectedBook));
     }
 
     @Test
@@ -69,13 +70,13 @@ public class BookServiceImplTest {
         when(authorService.findOrCreateByName(any(String[].class))).thenReturn(Set.of(author));
         when(genreService.findOrCreateByName(any(String[].class))).thenReturn(Set.of(genre));
         Book expected = mock(Book.class);
-        when(bookRepository.create(any())).thenReturn(expected);
+        when(bookRepository.save(any())).thenReturn(expected);
 
         final Book actual = bookService.create(request);
 
         verify(authorService, only()).findOrCreateByName(any(String[].class));
         verify(genreService, only()).findOrCreateByName(any(String[].class));
-        verify(bookRepository, only()).create(eq(book));
+        verify(bookRepository, only()).save(eq(book));
         assertEquals(expected, actual);
     }
 
@@ -91,14 +92,14 @@ public class BookServiceImplTest {
                 null);
         var expected = new Book(1L, updatedTitle, Set.of(author), Set.of(genre));
 
-        when(bookRepository.findById(1L)).thenReturn(oldBook);
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(oldBook));
         when(authorService.findOrCreateByName(any(String[].class))).thenReturn(Set.of(author));
-        when(bookRepository.update(any())).thenReturn(1);
+        when(bookRepository.save(any())).thenReturn(expected);
 
         Book actual = bookService.patch(patchRequest);
 
-        verify(bookRepository, times(1)).findById(eq(1L));
-        verify(bookRepository, times(1)).update(eq(expected));
+        verify(bookRepository, times(2)).findById(eq(1L));
+        verify(bookRepository, times(1)).save(eq(expected));
         assertNotNull(actual);
         assertEquals(expected, actual);
     }
@@ -106,7 +107,7 @@ public class BookServiceImplTest {
     @Test
     public void testPatch_NotFound() {
         BookPatchRequest patchRequest = new BookPatchRequest(1L, "Updated Title", null, null);
-        when(bookRepository.findById(1L)).thenReturn(null);
+        when(bookRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(BookNotFoundException.class, () -> bookService.patch(patchRequest));
     }
