@@ -39,7 +39,7 @@ public class CommentServiceImpl implements CommentService {
     public Comment update(Comment updatedComment) {
         var commentId = updatedComment.getId();
         var comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException(commentId));
+                .orElseThrow(CommentNotFoundException::new);
         comment.setText(updatedComment.getText());
         return commentRepository.save(comment);
     }
@@ -48,7 +48,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void delete(long commentId) {
         commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException(commentId));
+                .orElseThrow(CommentNotFoundException::new);
         commentRepository.delete(commentId);
     }
 

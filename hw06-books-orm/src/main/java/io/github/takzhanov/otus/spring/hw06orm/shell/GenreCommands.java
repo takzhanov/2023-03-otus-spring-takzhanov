@@ -2,12 +2,12 @@ package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.EntityAlreadyExistsException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
-import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -43,7 +43,7 @@ public class GenreCommands {
             return "Updated genre: " + genreFormatterService.formatGenre(savedGenre);
         } catch (EntityNotFoundException e) {
             return "Error: Genre not found with id: " + id;
-        } catch (EntityAlreadyExistsException e) {
+        } catch (DataIntegrityViolationException e) {
             return "Error: Genre with name '%s' already exists".formatted(name);
         }
     }

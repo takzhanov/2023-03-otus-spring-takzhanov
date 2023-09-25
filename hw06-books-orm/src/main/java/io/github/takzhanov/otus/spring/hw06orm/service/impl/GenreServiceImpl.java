@@ -66,9 +66,9 @@ public class GenreServiceImpl implements GenreService {
     public Genre update(Genre updatedGenre) {
         return genreRepository.findById(updatedGenre.getId()).stream()
                 .peek(c -> c.setName(updatedGenre.getName()))
-                .peek(c -> genreRepository.save(c))
+                .peek(genreRepository::save)
                 .findFirst()
-                .orElseThrow(() -> new GenreNotFoundException(updatedGenre));
+                .orElseThrow(GenreNotFoundException::new);
     }
 
     @Override

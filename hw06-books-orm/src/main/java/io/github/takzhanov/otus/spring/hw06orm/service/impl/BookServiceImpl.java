@@ -56,7 +56,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Book update(Book updatedBook) {
         bookRepository.findById(updatedBook.getId())
-                .orElseThrow(() -> new BookNotFoundException(updatedBook.getId()));
+                .orElseThrow(BookNotFoundException::new);
         return bookRepository.save(updatedBook);
     }
 
@@ -73,7 +73,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Book patch(BookPatchRequest patchRequest) {
         var oldBook = bookRepository.findById(patchRequest.id())
-                .orElseThrow(() -> new BookNotFoundException(patchRequest.id()));
+                .orElseThrow(BookNotFoundException::new);
 
         var newTitle = patchRequest.title() != null
                 ? patchRequest.title()
@@ -99,7 +99,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Comment addCommentToBook(long id, String commentText) {
         var book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(BookNotFoundException::new);
 
         var newComment = new Comment(commentText);
         book.getComments().add(newComment);
@@ -112,10 +112,10 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Author addAuthorToBook(long id, long authorId) {
         var book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(BookNotFoundException::new);
 
         var author = authorService.findById(authorId)
-                .orElseThrow(() -> new AuthorNotFoundException(authorId));
+                .orElseThrow(AuthorNotFoundException::new);
 
         book.getAuthors().add(author);
         bookRepository.save(book);
@@ -126,10 +126,10 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Author removeAuthor(long id, long authorId) {
         var book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(BookNotFoundException::new);
 
         var author = authorService.findById(authorId)
-                .orElseThrow(() -> new AuthorNotFoundException(authorId));
+                .orElseThrow(AuthorNotFoundException::new);
 
         book.getAuthors().remove(author);
         bookRepository.save(book);
@@ -140,10 +140,10 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Genre addGenre(long id, long genreId) {
         var book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(BookNotFoundException::new);
 
         var genre = genreService.findById(genreId)
-                .orElseThrow(() -> new GenreNotFoundException(genreId));
+                .orElseThrow(GenreNotFoundException::new);
 
         book.getGenres().add(genre);
         bookRepository.save(book);
@@ -154,10 +154,10 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Genre removeGenre(long id, long genreId) {
         var book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(BookNotFoundException::new);
 
         var genre = genreService.findById(genreId)
-                .orElseThrow(() -> new GenreNotFoundException(genreId));
+                .orElseThrow(GenreNotFoundException::new);
 
         book.getGenres().remove(genre);
         bookRepository.save(book);

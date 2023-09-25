@@ -65,9 +65,9 @@ public class AuthorServiceImpl implements AuthorService {
     public Author update(Author updatedAuthor) {
         return authorRepository.findById(updatedAuthor.getId()).stream()
                 .peek(c -> c.setName(updatedAuthor.getName()))
-                .peek(c -> authorRepository.save(c))
+                .peek(authorRepository::save)
                 .findFirst()
-                .orElseThrow(() -> new AuthorNotFoundException(updatedAuthor));
+                .orElseThrow(AuthorNotFoundException::new);
     }
 
     @Override
