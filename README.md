@@ -8,6 +8,6 @@
 Homeworks:
 * HW-01 lesson-01-question-reader
 * HW-02 lesson-02-quiz
-* HW-03
+* HW-03 hw03-quiz-boot (lesson-05)
 * HW-04
 * HW-05 lesson-09-library-jdbc
