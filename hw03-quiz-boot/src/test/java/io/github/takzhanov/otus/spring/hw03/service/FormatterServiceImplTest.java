@@ -5,6 +5,7 @@ import io.github.takzhanov.otus.spring.hw03.domain.Answer;
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
 import io.github.takzhanov.otus.spring.hw03.domain.Score;
 import io.github.takzhanov.otus.spring.hw03.domain.User;
+import io.github.takzhanov.otus.spring.hw03.service.converter.FormatterService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;

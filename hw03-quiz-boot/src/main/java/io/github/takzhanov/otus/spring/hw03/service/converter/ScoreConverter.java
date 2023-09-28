@@ -1,21 +1,18 @@
 package io.github.takzhanov.otus.spring.hw03.service.converter;
 
 import io.github.takzhanov.otus.spring.hw03.domain.Score;
-import java.util.Locale;
+import io.github.takzhanov.otus.spring.hw03.service.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.format.Printer;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ScoreConverter implements Printer<Score> {
-    private final MessageSource messageSource;
+public class ScoreConverter implements Converter<Score, String> {
+    private final MessageService messageService;
 
     @Override
-    public String print(Score score, Locale locale) {
-        return messageSource.getMessage("msg.scoreFormat",
-                new Object[]{score.value()},
-                locale);
+    public String convert(Score score) {
+        return messageService.getMessage("msg.scoreFormat", score.value());
     }
 }

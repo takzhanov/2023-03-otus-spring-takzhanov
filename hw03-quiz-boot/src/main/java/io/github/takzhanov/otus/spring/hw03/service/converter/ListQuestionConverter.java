@@ -2,21 +2,20 @@ package io.github.takzhanov.otus.spring.hw03.service.converter;
 
 import io.github.takzhanov.otus.spring.hw03.domain.Question;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.Printer;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ListQuestionConverter implements Printer<List<Question>> {
-    private final Printer<Question> questionPrinter;
+public class ListQuestionConverter implements Converter<List<Question>, String> {
+    private final QuestionConverter questionConverter;
 
     @Override
-    public String print(List<Question> questions, Locale locale) {
+    public String convert(List<Question> questions) {
         return questions.stream()
-                .map(q -> questionPrinter.print(q, locale))
+                .map(questionConverter::convert)
                 .collect(Collectors.joining("\n\n"));
     }
 }

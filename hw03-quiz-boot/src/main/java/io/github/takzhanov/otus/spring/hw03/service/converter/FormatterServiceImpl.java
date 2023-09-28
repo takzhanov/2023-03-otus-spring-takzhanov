@@ -1,4 +1,4 @@
-package io.github.takzhanov.otus.spring.hw03.service;
+package io.github.takzhanov.otus.spring.hw03.service.converter;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
