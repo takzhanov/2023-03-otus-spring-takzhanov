@@ -1,0 +1,6 @@
+package io.github.takzhanov.otus.spring.hw01reader.domain;
+
+import java.util.List;
+
+public record Question(String text, List<Answer> answers) {
+}
