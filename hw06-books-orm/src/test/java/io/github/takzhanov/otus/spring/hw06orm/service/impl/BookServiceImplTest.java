@@ -6,6 +6,7 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.exception.BookNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
+import io.github.takzhanov.otus.spring.hw06orm.service.BookService;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookCreateRequest;
 import io.github.takzhanov.otus.spring.hw06orm.service.dto.BookPatchRequest;
@@ -17,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@Import(BookServiceImpl.class)
 public class BookServiceImplTest {
     @MockBean
     private AuthorService authorService;
@@ -44,7 +47,7 @@ public class BookServiceImplTest {
     private BookRepository bookRepository;
 
     @Autowired
-    private BookServiceImpl bookService;
+    private BookService bookService;
 
     @Test
     void testCreate_titleOnly() {

@@ -1,5 +1,13 @@
 spring:
-  shell.interactive.enabled: true
+  shell.interactive.enabled: false
+
+
+
+#  thymeleaf:
+#    cache: false
+#    encoding: UTF-8
+#    servlet:
+#      content-type: text/html; charset=UTF-8
 
   jpa:
     show-sql: true
@@ -8,15 +16,14 @@ spring:
     properties:
       hibernate:
         format_sql: false
-
-
+    open-in-view: false
 
 
 
 
 logging:
   level:
-    ROOT: error
+    ROOT: info
 #    org.hibernate.SQL: debug
 #    org.hibernate.type: trace
 #    org.hibernate.orm.jdbc.bind: trace

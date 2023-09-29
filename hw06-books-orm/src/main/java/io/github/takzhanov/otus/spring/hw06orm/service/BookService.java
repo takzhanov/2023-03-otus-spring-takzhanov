@@ -19,6 +19,8 @@ public interface BookService {
 
     List<Comment> getCommentsByBookId(long bookId);
 
+    Book save(Book book);
+
     Book create(BookCreateRequest book);
 
     Book update(Book updatedBook);

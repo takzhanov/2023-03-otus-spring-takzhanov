@@ -50,9 +50,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Comment> getCommentsByBookId(long bookId) {
         return commentRepository.findAllByBookId(bookId);
+    }
+
+    @Override
+    @Transactional
+    public Book save(Book book) {
+        return bookRepository.save(book);
     }
 
     @Override
@@ -115,8 +121,7 @@ public class BookServiceImpl implements BookService {
         var newComment = new Comment(text);
         book.addComment(newComment);
 
-        commentRepository.save(newComment);
-        return newComment;
+        return commentRepository.save(newComment);
     }
 
     @Override

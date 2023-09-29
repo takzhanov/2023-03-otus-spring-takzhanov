@@ -12,7 +12,8 @@ spring:
   sql:
     init:
       # необходимо, чтобы не грузилась data.sql из main
-      data-locations: data.sql
+      data-locations: classpath:data.sql
+      mode: embedded
 
 logging:
   level:

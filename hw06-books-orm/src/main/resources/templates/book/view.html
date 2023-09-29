@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="${book.title}">View Book</title>
+</head>
+<body>
+
+<h1 th:text="${book.title}">Title</h1>
+<h2 th:text="'ID: ' + ${book.id}">ID</h2>
+
+<hr/>
+
+<h2>Authors:</h2>
+<ul>
+    <li th:each="author : ${book.authors}">
+        <span th:text="${author.name}">Author ONE</span>
+        <form th:action="@{'/books/' + ${book.id} + '/authors/' + ${author.id} + '/delete'}" method="post"
+              style="display:inline">
+            <button type="submit">Remove</button>
+        </form>
+    </li>
+</ul>
+
+<h4>Add Author</h4>
+<form th:action="@{'/books/' + ${book.id} + '/authors'}" method="post">
+    <label>
+        New Author:
+        <select name="authorId">
+            <option th:each="author : ${allAuthors}" th:value="${author.id}" th:text="${author.name}">Author TWO
+            </option>
+        </select>
+    </label>
+    <button type="submit">Add Author</button>
+</form>
+
+<hr/>
+
+<h2>Comments:</h2>
+<ul>
+    <li th:each="comment : ${comments}">
+        <span th:text="${comment.text}">Comment ONE</span>
+        <form th:action="@{'/books/' + ${book.id} + '/comments/' + ${comment.id} + '/delete'}" method="post"
+              style="display:inline">
+            <button type="submit">Remove</button>
+        </form>
+    </li>
+</ul>
+
+<h4>Add Comment</h4>
+<form th:action="@{'/books/' + ${book.id} + '/comments'}" method="post">
+    <div>
+        <label for="comment">New Comment: </label>
+        <input id="comment" type="text" name="text" placeholder="...your comment..." required autofocus
+               autocomplete="off">
+        <button type="submit">Add Comment</button>
+    </div>
+</form>
+
+<hr/>
+<a th:href="@{'/books/' + ${book.id} + '/edit'}">Edit Book</a> |
+<a href="/books">Back to list</a>
+</body>
+</html>
