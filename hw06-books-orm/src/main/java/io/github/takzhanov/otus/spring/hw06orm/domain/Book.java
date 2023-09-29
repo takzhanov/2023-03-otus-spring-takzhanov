@@ -76,6 +76,11 @@ public class Book {
         this.title = title;
     }
 
+    public Book(Long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public Book(Long id, String title, Set<Author> authors, Set<Genre> genres) {
         this.id = id;
         this.title = title;

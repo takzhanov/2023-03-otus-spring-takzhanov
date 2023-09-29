@@ -34,20 +34,31 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional(readOnly = true)
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        return bookRepository.findAll().stream()
+                .map(c -> {
+                    var book = new Book(c.getId(), c.getTitle());
+                    book.getGenres().addAll(c.getGenres());
+                    book.getAuthors().addAll(c.getAuthors());
+                    return book;
+                }).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Book> findById(long id) {
-        return bookRepository.findById(id);
+        return bookRepository.findById(id)
+                .map(c -> {
+                    var book = new Book(c.getId(), c.getTitle());
+                    book.getGenres().addAll(c.getGenres());
+                    book.getAuthors().addAll(c.getAuthors());
+                    return book;
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
     public Book getById(long id) {
-        return bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+        return findById(id).orElseThrow(() -> new BookNotFoundException(id));
     }
 
     @Override
@@ -105,7 +116,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void delete(long bookId) {
-        bookRepository.delete(bookId);
+        bookRepository.deleteById(bookId);
     }
 
     @Override

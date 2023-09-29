@@ -2,22 +2,21 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
-import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
+import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
-@Import(AuthorRepositoryImpl.class)
 class AuthorRepositoryImplTest {
     @Autowired
-    private AuthorRepositoryImpl authorRepository;
+    private AuthorRepository authorRepository;
 
     @Autowired
     private TestEntityManager em;
@@ -43,27 +42,6 @@ class AuthorRepositoryImplTest {
         assertThat(authorRepository.findById(newAuthor.getId()))
                 .isPresent()
                 .contains(newAuthor);
-    }
-
-    @Test
-    void findById_notFound() {
-        assertThat(authorRepository.findById(NON_EXISTENT_ID))
-                .isEmpty();
-    }
-
-    @Test
-    void getById_found() {
-        var newAuthor = new Author("Author 1");
-        em.persist(newAuthor);
-
-        assertThat(authorRepository.getById(newAuthor.getId()))
-                .isEqualTo(newAuthor);
-    }
-
-    @Test
-    void getById_notFound() {
-        assertThatThrownBy(() -> authorRepository.getById(NON_EXISTENT_ID))
-                .isInstanceOf(AuthorNotFoundException.class);
     }
 
     @Test
@@ -107,7 +85,7 @@ class AuthorRepositoryImplTest {
         em.persist(new Author(UNIQ_NAME));
 
         assertThatThrownBy(() -> authorRepository.save(new Author(UNIQ_NAME)))
-                .isInstanceOf(ConstraintViolationException.class);
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
@@ -129,14 +107,14 @@ class AuthorRepositoryImplTest {
         em.persist(newAuthor);
         assertThat(em.find(Author.class, newAuthor.getId())).isNotNull();
 
-        authorRepository.delete(newAuthor.getId());
+        authorRepository.deleteById(newAuthor.getId());
 
         assertThat(em.find(Author.class, newAuthor.getId())).isNull();
     }
 
     @Test
     void delete_nonExistent_ok() {
-        authorRepository.delete(NON_EXISTENT_ID);
+        authorRepository.deleteById(NON_EXISTENT_ID);
     }
 
     @Test
@@ -150,7 +128,7 @@ class AuthorRepositoryImplTest {
         em.clear();
 
         assertThatThrownBy(() -> {
-            authorRepository.delete(newAuthor.getId());
+            authorRepository.deleteById(newAuthor.getId());
             em.flush();
         }).isInstanceOf(ConstraintViolationException.class);
 

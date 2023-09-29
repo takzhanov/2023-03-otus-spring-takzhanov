@@ -20,7 +20,7 @@ public class BookManagementCommands {
         var book = bookService.getById(bookId);
         var comments = bookService.getCommentsByBookId(bookId);
 
-        return "Comments for %s: \n%s".formatted(
+        return "Comments for [%s]: \n%s".formatted(
                 book.getTitle(),
                 formatterService.format(comments));
     }

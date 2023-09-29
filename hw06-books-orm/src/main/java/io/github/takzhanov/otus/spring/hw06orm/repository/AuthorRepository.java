@@ -1,19 +1,9 @@
 package io.github.takzhanov.otus.spring.hw06orm.repository;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AuthorRepository {
-    List<Author> findAll();
-
-    Optional<Author> findById(long id);
-
-    Author getById(long id);
-
+public interface AuthorRepository extends JpaRepository<Author, Long>, AuthorRepositoryCustom {
     Optional<Author> findByName(String name);
-
-    Author save(Author entity);
-
-    void delete(long id);
 }

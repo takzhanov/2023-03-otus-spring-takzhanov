@@ -1,15 +1,7 @@
 package io.github.takzhanov.otus.spring.hw06orm.repository;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BookRepository {
-    List<Book> findAll();
-
-    Optional<Book> findById(long id);
-
-    Book save(Book entity);
-
-    void delete(long id);
+public interface BookRepository extends JpaRepository<Book, Long> {
 }

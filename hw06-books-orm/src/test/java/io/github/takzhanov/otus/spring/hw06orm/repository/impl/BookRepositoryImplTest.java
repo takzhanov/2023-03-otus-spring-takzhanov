@@ -4,19 +4,18 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
+import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(BookRepositoryImpl.class)
 class BookRepositoryImplTest {
     @Autowired
-    private BookRepositoryImpl bookRepository;
+    private BookRepository bookRepository;
 
     @Autowired
     private TestEntityManager em;
@@ -98,7 +97,7 @@ class BookRepositoryImplTest {
         em.persistAndFlush(book);
         em.clear();
 
-        bookRepository.delete(book.getId());
+        bookRepository.deleteById(book.getId());
 
         var actualBook = em.find(Book.class, book.getId());
         assertThat(actualBook).isNull();

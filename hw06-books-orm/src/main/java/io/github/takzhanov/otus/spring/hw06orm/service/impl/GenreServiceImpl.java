@@ -37,7 +37,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional(readOnly = true)
     public Genre getById(long id) {
-        return genreRepository.getById(id);
+        return genreRepository.getReferenceById(id);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public void delete(long id) {
-        genreRepository.delete(id);
+        genreRepository.deleteById(id);
     }
 
     @Override

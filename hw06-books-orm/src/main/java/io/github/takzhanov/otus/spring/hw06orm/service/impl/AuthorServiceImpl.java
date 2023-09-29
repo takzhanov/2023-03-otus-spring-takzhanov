@@ -1,6 +1,7 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
+import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.NotImplementedException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
@@ -37,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional(readOnly = true)
     public Author getById(long authorId) {
-        return authorRepository.getById(authorId);
+        return findById(authorId).orElseThrow(() -> new AuthorNotFoundException(authorId));
     }
 
     @Override
@@ -82,7 +83,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void delete(long id) {
-        authorRepository.delete(id);
+        authorRepository.deleteById(id);
     }
 
     @Override
