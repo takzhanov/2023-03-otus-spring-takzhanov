@@ -1,6 +1,7 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
+import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +63,11 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public Genre create(Genre newGenre) {
-        return genreRepository.save(newGenre);
+        try {
+            return genreRepository.save(newGenre);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConstraintException("Genre with name '%s' already exists".formatted(newGenre.getName()));
+        }
     }
 
     @Override
