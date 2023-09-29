@@ -1,11 +1,12 @@
 package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 
+import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
+import io.github.takzhanov.otus.spring.hw06orm.exception.GenreNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +20,25 @@ public class GenreRepositoryImpl implements GenreRepository {
 
     @Override
     public List<Genre> findAll() {
-        TypedQuery<Genre> query = em.createQuery("SELECT g FROM Genre g", Genre.class);
+        var query = em.createQuery("SELECT g FROM Genre g", Genre.class);
         return query.getResultList();
     }
 
     @Override
-    public Optional<Genre> findById(Long id) {
+    public Optional<Genre> findById(long id) {
         return Optional.ofNullable(em.find(Genre.class, id));
+    }
+
+    @Override
+    public Genre getById(long id) {
+        return findById(id).orElseThrow(() -> new GenreNotFoundException(id));
     }
 
     @Override
     public Optional<Genre> findByName(String name) {
         try {
-            var genre = em.createQuery("SELECT g FROM Genre g " +
-                                       "WHERE g.name = :name", Genre.class)
+            var genre = em.createQuery(
+                            "SELECT g FROM Genre g WHERE g.name = :name", Genre.class)
                     .setParameter("name", name)
                     .getSingleResult();
             return Optional.ofNullable(genre);
@@ -52,23 +58,27 @@ public class GenreRepositoryImpl implements GenreRepository {
     }
 
     @Override
-    public int delete(Long id) {
-        Genre genre = em.find(Genre.class, id);
+    public void delete(long id) {
+        var genre = em.find(Genre.class, id);
         if (genre != null) {
             em.remove(genre);
-            return 1;
         }
-        return 0;
     }
 
     @Override
-    public int forceDelete(Long id) {
-        // First, manually delete relations in the book_genre table.
-        em.createNativeQuery("DELETE FROM book_genre WHERE genre_id = :genreId")
-                .setParameter("genreId", id)
-                .executeUpdate();
+    public void forceDelete(long id) {
+        var genre = em.find(Genre.class, id);
+        if (genre != null) {
+            var associatedBooks = em.createQuery(
+                            "SELECT b FROM Book b JOIN b.genres g WHERE g.id = :genreId", Book.class)
+                    .setParameter("genreId", id)
+                    .getResultList();
 
-        // Then delete the genre.
-        return delete(id);
+            for (var book : associatedBooks) {
+                book.getGenres().remove(genre);
+            }
+
+            em.remove(genre);
+        }
     }
 }

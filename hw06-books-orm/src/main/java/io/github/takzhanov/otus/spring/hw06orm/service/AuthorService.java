@@ -12,13 +12,15 @@ public interface AuthorService {
 
     Optional<Author> findById(long authorId);
 
+    Author getById(long authorId);
+
     Set<Author> findOrCreateByName(String[] authorNames);
 
     Author create(Author newAuthor);
 
     Author update(Author updatedAuthor);
 
-    void delete(Long id);
+    void delete(long id);
 
     void forceDelete(Long id);
 }

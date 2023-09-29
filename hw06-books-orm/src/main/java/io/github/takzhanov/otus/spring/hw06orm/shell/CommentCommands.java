@@ -1,11 +1,9 @@
 package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
-import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.service.CommentService;
-import java.util.stream.Collectors;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.FormatterService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.Printer;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -15,28 +13,23 @@ import org.springframework.shell.standard.ShellOption;
 public class CommentCommands {
     private final CommentService commentService;
 
-    private final Printer<Comment> commentPrinter;
+    private final FormatterService formatterService;
 
-    @ShellMethod(value = "List all comments", key = {"lc", "list-comments"})
-    public String listComments() {
-        return commentService.findAll().stream()
-                .map(this::formatComment)
-                .collect(Collectors.joining(",\n"));
-    }
-
-    @ShellMethod(value = "Read comment", key = {"rc", "read-comment"})
-    public String readComment(@ShellOption Long id) {
-        var foundComment = commentService.findById(id);
-        if (foundComment.isEmpty()) {
-            return "Comment not found with id: " + id;
+    @ShellMethod(value = "List all comments | Find comment", key = {"lc", "list-comments"})
+    public String listComments(@ShellOption(defaultValue = "") Long id) {
+        if (id == null) {
+            var comments = commentService.findAll();
+            return formatterService.format(comments);
+        } else {
+            var comment = commentService.getById(id);
+            return formatterService.format(comment);
         }
-        return "Comment with id = " + id + ":\n" + formatComment(foundComment.get());
     }
 
     @ShellMethod(value = "Create a new comment", key = {"cc", "create-comment"})
     public String createComment(@ShellOption String text) {
-        Comment savedComment = commentService.create(new Comment(text));
-        return "Created new comment: " + formatComment(savedComment);
+        var savedComment = commentService.create(new Comment(text));
+        return "Created comment: " + formatterService.format(savedComment);
     }
 
     @ShellMethod(value = "Update a comment", key = {"uc", "update-comment"})
@@ -44,22 +37,14 @@ public class CommentCommands {
         if (text == null) {
             return "Missing mandatory option '--text'";
         }
-        try {
-            var newComment = new Comment(id, text);
-            var savedComment = commentService.update(newComment);
-            return "Updated comment: " + formatComment(savedComment);
-        } catch (EntityNotFoundException e) {
-            return "Error: Comment not found with id: " + id;
-        }
+        var newComment = new Comment(id, text);
+        var savedComment = commentService.update(newComment);
+        return "Updated comment: " + formatterService.format(savedComment);
     }
 
     @ShellMethod(value = "Delete a comment", key = {"dc", "delete-comment"})
     public String deleteComment(@ShellOption Long id) {
         commentService.delete(id);
         return "Comment deleted";
-    }
-
-    private String formatComment(Comment c) {
-        return commentPrinter.print(c, null);
     }
 }

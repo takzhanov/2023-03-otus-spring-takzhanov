@@ -1,10 +1,9 @@
 package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
-import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
+import io.github.takzhanov.otus.spring.hw06orm.exception.AbstractEntityNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
-import io.github.takzhanov.otus.spring.hw06orm.service.formatter.GenreFormatterService;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.FormatterService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,19 +16,19 @@ import org.springframework.shell.standard.ShellOption;
 public class GenreCommands {
     private final GenreService genreService;
 
-    private final GenreFormatterService genreFormatterService;
+    private final FormatterService formatterService;
 
     @ShellMethod(value = "List all genres", key = {"lg", "list-genres"})
     public String listGenres() {
         List<Genre> genres = genreService.findAll();
-        return genreFormatterService.formatGenres(genres);
+        return formatterService.format(genres);
     }
 
     @ShellMethod(value = "Create a new genre", key = {"cg", "create-genre"})
     public String createGenre(@ShellOption String name) {
         Genre newGenre = new Genre(null, name);
         Genre savedGenre = genreService.create(newGenre);
-        return "Created new genre: " + genreFormatterService.formatGenre(savedGenre);
+        return "Created new genre: " + formatterService.format(savedGenre);
     }
 
     @ShellMethod(value = "Update a genre", key = {"ug", "update-genre"})
@@ -40,8 +39,8 @@ public class GenreCommands {
         try {
             var newGenre = new Genre(id, name);
             var savedGenre = genreService.update(newGenre);
-            return "Updated genre: " + genreFormatterService.formatGenre(savedGenre);
-        } catch (EntityNotFoundException e) {
+            return "Updated genre: " + formatterService.format(savedGenre);
+        } catch (AbstractEntityNotFoundException e) {
             return "Error: Genre not found with id: " + id;
         } catch (DataIntegrityViolationException e) {
             return "Error: Genre with name '%s' already exists".formatted(name);
@@ -55,7 +54,7 @@ public class GenreCommands {
         } else {
             try {
                 genreService.delete(id);
-            } catch (ConstraintException e) {
+            } catch (DataIntegrityViolationException e) {
                 return "There are links. Try to use with --force option";
             }
         }

@@ -3,8 +3,8 @@ package io.github.takzhanov.otus.spring.hw06orm.repository.impl;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,27 +18,18 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        return em.createQuery("SELECT b FROM Book b " +
-                              "LEFT JOIN FETCH b.authors " +
-                              "LEFT JOIN FETCH b.genres " +
-                              "LEFT JOIN FETCH b.comments", Book.class)
+        var entityGraph = em.getEntityGraph("Book.authors,genres");
+        return em.createQuery("SELECT b FROM Book b", Book.class)
+                .setHint("jakarta.persistence.loadgraph", entityGraph)
                 .getResultList();
     }
 
     @Override
-    public Optional<Book> findById(Long id) {
-        try {
-            var book = em.createQuery("SELECT b FROM Book b " +
-                                      "LEFT JOIN FETCH b.authors " +
-                                      "LEFT JOIN FETCH b.genres " +
-                                      "LEFT JOIN FETCH b.comments " +
-                                      "WHERE b.id = :id", Book.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-            return Optional.ofNullable(book);
-        } catch (NoResultException ex) {
-            return Optional.empty();
-        }
+    public Optional<Book> findById(long id) {
+        var entityGraph = em.getEntityGraph("Book.authors,genres");
+        var hints = new HashMap<String, Object>();
+        hints.put("jakarta.persistence.loadgraph", entityGraph);
+        return Optional.ofNullable(em.find(Book.class, id, hints));
     }
 
     @Override
@@ -52,7 +43,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(long id) {
         Book book = em.find(Book.class, id);
         if (book != null) {
             em.remove(book);

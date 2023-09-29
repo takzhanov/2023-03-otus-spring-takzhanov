@@ -10,19 +10,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
+@ToString(of = {"id", "title"})
 @Entity
 @Table(name = "book")
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(name = "Book.authors,genres",
+        attributeNodes = {@NamedAttributeNode("authors"), @NamedAttributeNode("genres")})
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +40,12 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.DETACH,
+            CascadeType.REFRESH
+    })
     @JoinTable(
             name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -40,7 +53,12 @@ public class Book {
     )
     private Set<Author> authors = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.DETACH,
+            CascadeType.REFRESH
+    })
     @JoinTable(
             name = "book_genre",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -48,8 +66,10 @@ public class Book {
     )
     private Set<Genre> genres = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "book_id")
+    @OneToMany(mappedBy = "book",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
     public Book(String title) {
@@ -61,5 +81,11 @@ public class Book {
         this.title = title;
         this.authors = authors;
         this.genres = genres;
+    }
+
+    public Book addComment(Comment newComment) {
+        comments.add(newComment);
+        newComment.setBook(this);
+        return this;
     }
 }

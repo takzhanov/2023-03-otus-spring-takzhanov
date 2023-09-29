@@ -4,11 +4,6 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
-import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
-import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
-import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,92 +13,94 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookRepositoryImpl.class, AuthorRepositoryImpl.class, GenreRepositoryImpl.class})
+@Import(BookRepositoryImpl.class)
 class BookRepositoryImplTest {
     @Autowired
-    private BookRepository bookRepository;
-
-    @Autowired
-    private AuthorRepository authorRepository;
-
-    @Autowired
-    private GenreRepository genreRepository;
+    private BookRepositoryImpl bookRepository;
 
     @Autowired
     private TestEntityManager em;
 
     @Test
-    void findById() {
-        var expectedBook = new Book(1L, "1984",
-                Set.of(new Author(1L, "Test Author 1")),
-                Set.of(new Genre(1L, "Test Genre 1"), new Genre(2L, "Test Genre 2")),
-                Set.of(new Comment(1L, "Comment 1"), new Comment(2L, "Comment 2")));
+    void findAll() {
+        var book = new Book("Title 1");
+        book.getAuthors().add(new Author("Author 1"));
+        book.getAuthors().add(new Author("Author 2"));
+        book.getGenres().add(new Genre("Genre 1"));
+        book.getGenres().add(new Genre("Genre 2"));
+        book.addComment(new Comment("Comment 1"));
+        book.addComment(new Comment("Comment 2"));
+        book.addComment(new Comment("Comment 3"));
 
-        var actualBook = bookRepository.findById(1L).get();
+        em.persistAndFlush(book);
+        em.clear();
 
-        assertThatBooksAreEquals(actualBook, expectedBook);
-    }
+        var foundBooks = bookRepository.findAll();
+        assertThat(foundBooks).hasSizeGreaterThanOrEqualTo(3);
 
-    @Test
-    void findAll_checkFullness() {
-        var expectedTitles = Set.of("1984", "Harry Potter and the Philosopher's Stone");
-        var actualTitles = bookRepository.findAll().stream().map(Book::getTitle).collect(Collectors.toSet());
-        assertThat(actualTitles).containsAll(expectedTitles);
-    }
+        var savedBook = foundBooks.stream().filter(b -> book.getId().equals(b.getId())).findFirst().get();
+        assertThat(savedBook).usingRecursiveComparison().isEqualTo(book);
 
-    @Test
-    void findAll_checkCorrectness() {
-        for (var actual : bookRepository.findAll()) {
-            var expected = bookRepository.findById(actual.getId()).get();
-            assertThatBooksAreEquals(actual, expected);
+        for (Book b : foundBooks) {
+            assertThat(b).usingRecursiveComparison().isEqualTo(em.find(Book.class, b.getId()));
         }
     }
 
+
     @Test
-    void create() {
-        var expectedBook = new Book("Test Book 1");
-        final Author a2 = authorRepository.findById(2L).get();
-        final Author a3 = authorRepository.findById(3L).get();
-        expectedBook.getAuthors().addAll(Set.of(a2, a3));
-        final Genre g1 = genreRepository.findById(1L).get();
-        final Genre g3 = genreRepository.findById(3L).get();
-        expectedBook.getGenres().addAll(Set.of(g1, g3));
+    void findById() {
+        var book = new Book("Title 1");
+        book.getAuthors().add(new Author("Author 1"));
+        book.getAuthors().add(new Author("Author 2"));
+        book.getGenres().add(new Genre("Genre 1"));
+        book.getGenres().add(new Genre("Genre 2"));
+        book.addComment(new Comment("Comment 1"));
+        book.addComment(new Comment("Comment 2"));
+        book.addComment(new Comment("Comment 3"));
 
-        var createdBook = bookRepository.save(expectedBook);
-        assertThat(createdBook.getId()).isNotNull();
+        em.persistAndFlush(book);
+        em.clear();
 
-        var foundBook = bookRepository.findById(createdBook.getId()).get();
-        assertThat(foundBook)
-                .usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(expectedBook);
+        var actualBook = bookRepository.findById(book.getId()).get();
+        assertThat(actualBook).usingRecursiveComparison().isEqualTo(book);
     }
 
+
     @Test
-    void update() {
-        var expectedBook = bookRepository.findById(1L).get();
-        expectedBook.getAuthors().clear();
-        expectedBook.getAuthors().add(new Author(3L, "Test Author 3"));
-        expectedBook.getGenres().clear();
-        expectedBook.getGenres().add(new Genre(2L, "Test Genre 2"));
+    void save() {
+        var book = new Book("Title 1");
+        book.getAuthors().add(new Author("Author 1"));
+        book.getAuthors().add(new Author("Author 2"));
+        book.getGenres().add(new Genre("Genre 1"));
+        book.getGenres().add(new Genre("Genre 2"));
+        book.addComment(new Comment("Comment 1"));
+        book.addComment(new Comment("Comment 2"));
+        book.addComment(new Comment("Comment 3"));
 
-        var savedBook = bookRepository.save(expectedBook);
-        assertThat(savedBook.getId()).isEqualTo(1L);
+        bookRepository.save(book);
+        em.flush();
+        em.clear();
 
-        var foundBook = bookRepository.findById(1L).get();
-        assertThatBooksAreEquals(foundBook, expectedBook);
+        var actualBook = em.find(Book.class, book.getId());
+        assertThat(actualBook).usingRecursiveComparison().isEqualTo(book);
     }
 
     @Test
     void delete() {
-        assertThat(bookRepository.findById(1L)).isNotEmpty();
-        bookRepository.delete(1L);
-        assertThat(bookRepository.findById(1L)).isEmpty();
-    }
+        var book = new Book("Title 1");
+        book.getAuthors().add(new Author("Author 1"));
+        book.getAuthors().add(new Author("Author 2"));
+        book.getGenres().add(new Genre("Genre 1"));
+        book.getGenres().add(new Genre("Genre 2"));
+        book.addComment(new Comment("Comment 1"));
+        book.addComment(new Comment("Comment 2"));
+        book.addComment(new Comment("Comment 3"));
+        em.persistAndFlush(book);
+        em.clear();
 
-    private void assertThatBooksAreEquals(Book actual, Book expected) {
-        assertThat(actual)
-                .usingRecursiveComparison()
-                .isEqualTo(expected);
+        bookRepository.delete(book.getId());
+
+        var actualBook = em.find(Book.class, book.getId());
+        assertThat(actualBook).isNull();
     }
 }

@@ -1,7 +1,6 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
@@ -29,15 +28,22 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Author> findById(long authorId) {
+        return authorRepository.findById(authorId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Author getById(long authorId) {
+        return authorRepository.getById(authorId);
+    }
+
+    @Override
     @Transactional
     public Author findOrCreateByName(String authorName) {
         return authorRepository.findByName(authorName)
                 .orElseGet(() -> authorRepository.save(new Author(authorName)));
-    }
-
-    @Override
-    public Optional<Author> findById(long authorId) {
-        return authorRepository.findById(authorId);
     }
 
     @Override
@@ -57,27 +63,25 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Author create(Author newAuthor) {
-        return authorRepository.save(newAuthor);
+        try {
+            return authorRepository.save(newAuthor);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConstraintException("Author with name '%s' already exists".formatted(newAuthor.getName()));
+        }
     }
 
     @Override
     @Transactional
     public Author update(Author updatedAuthor) {
-        return authorRepository.findById(updatedAuthor.getId()).stream()
-                .peek(c -> c.setName(updatedAuthor.getName()))
-                .peek(authorRepository::save)
-                .findFirst()
-                .orElseThrow(AuthorNotFoundException::new);
+        var author = getById(updatedAuthor.getId());
+        author.setName(updatedAuthor.getName());
+        return authorRepository.save(author);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        try {
-            authorRepository.delete(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConstraintException(e);
-        }
+    public void delete(long id) {
+        authorRepository.delete(id);
     }
 
     @Override

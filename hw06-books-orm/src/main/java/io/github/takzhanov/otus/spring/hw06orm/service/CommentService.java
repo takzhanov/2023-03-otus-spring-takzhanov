@@ -7,7 +7,9 @@ import java.util.Optional;
 public interface CommentService {
     List<Comment> findAll();
 
-    Optional<Comment> findById(Long id);
+    Optional<Comment> findById(long id);
+
+    Comment getById(long id);
 
     Comment create(Comment comment);
 

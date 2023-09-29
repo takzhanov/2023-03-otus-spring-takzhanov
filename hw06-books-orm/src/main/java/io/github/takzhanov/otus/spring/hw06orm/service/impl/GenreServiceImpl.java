@@ -1,8 +1,6 @@
 package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
-import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.GenreNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import java.util.Arrays;
@@ -13,7 +11,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +27,14 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Genre> findById(Long id) {
+    public Optional<Genre> findById(long id) {
         return genreRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Genre getById(long id) {
+        return genreRepository.getById(id);
     }
 
     @Override
@@ -64,26 +67,20 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public Genre update(Genre updatedGenre) {
-        return genreRepository.findById(updatedGenre.getId()).stream()
-                .peek(c -> c.setName(updatedGenre.getName()))
-                .peek(genreRepository::save)
-                .findFirst()
-                .orElseThrow(GenreNotFoundException::new);
+        var genre = getById(updatedGenre.getId());
+        genre.setName(updatedGenre.getName());
+        return genreRepository.save(genre);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        try {
-            genreRepository.delete(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConstraintException(e);
-        }
+    public void delete(long id) {
+        genreRepository.delete(id);
     }
 
     @Override
     @Transactional
-    public void forceDelete(Long id) {
+    public void forceDelete(long id) {
         genreRepository.forceDelete(id);
     }
 }

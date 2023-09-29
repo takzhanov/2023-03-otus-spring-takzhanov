@@ -4,10 +4,9 @@ import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Book;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Comment;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
-import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.BookNotFoundException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.GenreNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.BookRepository;
+import io.github.takzhanov.otus.spring.hw06orm.repository.CommentRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
 import io.github.takzhanov.otus.spring.hw06orm.service.BookService;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
@@ -28,6 +27,8 @@ public class BookServiceImpl implements BookService {
 
     private final GenreService genreService;
 
+    private final CommentRepository commentRepository;
+
     private final BookRepository bookRepository;
 
     @Override
@@ -38,8 +39,21 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Book> findById(Long id) {
+    public Optional<Book> findById(long id) {
         return bookRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Book getById(long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @Override
+    @Transactional
+    public List<Comment> getCommentsByBookId(long bookId) {
+        return commentRepository.findAllByBookId(bookId);
     }
 
     @Override
@@ -55,25 +69,24 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public Book update(Book updatedBook) {
-        bookRepository.findById(updatedBook.getId())
-                .orElseThrow(BookNotFoundException::new);
+        getById(updatedBook.getId());
         return bookRepository.save(updatedBook);
     }
 
     @Override
     @Transactional
     public Book update(BookUpdateRequest updateRequest) {
+        getById(updateRequest.id());
         var newAuthors = authorService.findOrCreateByName(updateRequest.authorNames());
         var newGenres = genreService.findOrCreateByName(updateRequest.genreNames());
         var updatedBook = new Book(updateRequest.id(), updateRequest.title(), newAuthors, newGenres);
-        return update(updatedBook);
+        return bookRepository.save(updatedBook);
     }
 
     @Override
     @Transactional
     public Book patch(BookPatchRequest patchRequest) {
-        var oldBook = bookRepository.findById(patchRequest.id())
-                .orElseThrow(BookNotFoundException::new);
+        var oldBook = getById(patchRequest.id());
 
         var newTitle = patchRequest.title() != null
                 ? patchRequest.title()
@@ -86,23 +99,22 @@ public class BookServiceImpl implements BookService {
                 : oldBook.getGenres();
 
         var patchedBook = new Book(patchRequest.id(), newTitle, newAuthors, newGenres);
-        return update(patchedBook);
+        return bookRepository.save(patchedBook);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        bookRepository.delete(id);
+    public void delete(long bookId) {
+        bookRepository.delete(bookId);
     }
 
     @Override
     @Transactional
-    public Comment addCommentToBook(long id, String commentText) {
-        var book = bookRepository.findById(id)
-                .orElseThrow(BookNotFoundException::new);
+    public Comment addCommentToBook(long bookId, String text) {
+        var book = getById(bookId);
 
-        var newComment = new Comment(commentText);
-        book.getComments().add(newComment);
+        var newComment = new Comment(text);
+        book.addComment(newComment);
 
         bookRepository.save(book);
         return newComment;
@@ -111,11 +123,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public Author addAuthorToBook(long id, long authorId) {
-        var book = bookRepository.findById(id)
-                .orElseThrow(BookNotFoundException::new);
-
-        var author = authorService.findById(authorId)
-                .orElseThrow(AuthorNotFoundException::new);
+        var book = getById(id);
+        var author = authorService.getById(authorId);
 
         book.getAuthors().add(author);
         bookRepository.save(book);
@@ -124,12 +133,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Author removeAuthor(long id, long authorId) {
-        var book = bookRepository.findById(id)
-                .orElseThrow(BookNotFoundException::new);
-
-        var author = authorService.findById(authorId)
-                .orElseThrow(AuthorNotFoundException::new);
+    public Author removeAuthorFromBook(long id, long authorId) {
+        var book = getById(id);
+        var author = authorService.getById(authorId);
 
         book.getAuthors().remove(author);
         bookRepository.save(book);
@@ -138,12 +144,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Genre addGenre(long id, long genreId) {
-        var book = bookRepository.findById(id)
-                .orElseThrow(BookNotFoundException::new);
-
-        var genre = genreService.findById(genreId)
-                .orElseThrow(GenreNotFoundException::new);
+    public Genre addGenreToBook(long bookId, long genreId) {
+        var book = getById(bookId);
+        var genre = genreService.getById(genreId);
 
         book.getGenres().add(genre);
         bookRepository.save(book);
@@ -152,12 +155,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Genre removeGenre(long id, long genreId) {
-        var book = bookRepository.findById(id)
-                .orElseThrow(BookNotFoundException::new);
-
-        var genre = genreService.findById(genreId)
-                .orElseThrow(GenreNotFoundException::new);
+    public Genre removeGenreFromBook(long bookId, long genreId) {
+        var book = getById(bookId);
+        var genre = genreService.getById(genreId);
 
         book.getGenres().remove(genre);
         bookRepository.save(book);

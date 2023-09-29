@@ -8,7 +8,9 @@ import java.util.Set;
 public interface GenreService {
     List<Genre> findAll();
 
-    Optional<Genre> findById(Long id);
+    Optional<Genre> findById(long id);
+
+    Genre getById(long id);
 
     Genre findOrCreateByName(String genreName);
 
@@ -18,7 +20,7 @@ public interface GenreService {
 
     Genre update(Genre updatedGenre);
 
-    void delete(Long id);
+    void delete(long id);
 
-    void forceDelete(Long id);
+    void forceDelete(long id);
 }

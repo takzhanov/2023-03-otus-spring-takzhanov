@@ -5,15 +5,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GenreRepository {
-    Optional<Genre> findByName(String name);
-
-    int forceDelete(Long id);
-
     List<Genre> findAll();
 
-    Optional<Genre> findById(Long id);
+    Optional<Genre> findById(long id);
+
+    Genre getById(long id);
+
+    Optional<Genre> findByName(String name);
 
     Genre save(Genre entity);
 
-    int delete(Long id);
+    void delete(long id);
+
+    void forceDelete(long id);
 }

@@ -1,10 +1,9 @@
 package io.github.takzhanov.otus.spring.hw06orm.shell;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
-import io.github.takzhanov.otus.spring.hw06orm.exception.EntityNotFoundException;
+import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
-import io.github.takzhanov.otus.spring.hw06orm.service.formatter.AuthorFormatterService;
-import java.util.List;
+import io.github.takzhanov.otus.spring.hw06orm.service.formatter.FormatterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.shell.standard.ShellComponent;
@@ -16,19 +15,19 @@ import org.springframework.shell.standard.ShellOption;
 public class AuthorCommands {
     private final AuthorService authorService;
 
-    private final AuthorFormatterService authorFormatterService;
+    private final FormatterService formatterService;
 
     @ShellMethod(value = "List all authors", key = {"la", "list-authors"})
     public String listAuthors() {
-        List<Author> authors = authorService.findAll();
-        return authorFormatterService.formatAuthors(authors);
+        var authors = authorService.findAll();
+        return formatterService.format(authors);
     }
 
     @ShellMethod(value = "Create a new author", key = {"ca", "create-author"})
     public String createAuthor(@ShellOption String name) {
         Author newAuthor = new Author(null, name);
         Author savedAuthor = authorService.create(newAuthor);
-        return "Created new author: " + authorFormatterService.formatAuthor(savedAuthor);
+        return "Created author: " + formatterService.format(savedAuthor);
     }
 
     @ShellMethod(value = "Update an author", key = {"ua", "update-author"})
@@ -39,11 +38,9 @@ public class AuthorCommands {
         try {
             var newAuthor = new Author(id, name);
             var savedAuthor = authorService.update(newAuthor);
-            return "Updated author: " + authorFormatterService.formatAuthor(savedAuthor);
-        } catch (EntityNotFoundException e) {
-            return "Error: Author not found with id: " + id;
+            return "Updated author: " + formatterService.format(savedAuthor);
         } catch (DataIntegrityViolationException e) {
-            return "Error: Author with name '%s' already exists".formatted(name);
+            throw new ConstraintException("Author with name '%s' already exists".formatted(name));
         }
     }
 
@@ -55,9 +52,9 @@ public class AuthorCommands {
             try {
                 authorService.delete(id);
             } catch (DataIntegrityViolationException e) {
-                return "There are links. Try to use with --force option";
+                throw new ConstraintException("There are links. Try to use with --force option");
             }
         }
-        return "Deleted author with id = " + id;
+        return "Author deleted";
     }
 }

@@ -13,10 +13,12 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +34,6 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class BookServiceImplTest {
-
     @MockBean
     private AuthorService authorService;
 
@@ -55,7 +56,9 @@ public class BookServiceImplTest {
         verify(authorService, never()).findOrCreateByName(anyString());
         verify(genreService, never()).findOrCreateByName(anyString());
         var expectedBook = new Book(null, expectedTitle, Collections.emptySet(), Collections.emptySet());
-        verify(bookRepository, only()).save(eq(expectedBook));
+        final ArgumentCaptor<Book> argument = ArgumentCaptor.forClass(Book.class);
+        verify(bookRepository, only()).save(argument.capture());
+        assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(expectedBook);
     }
 
     @Test
@@ -63,6 +66,7 @@ public class BookServiceImplTest {
         var author = new Author(1L, "Author1");
         var genre = new Genre(1L, "Genre1");
         var book = new Book(null, "Sample Book", Set.of(author), Set.of(genre));
+
         BookCreateRequest request = new BookCreateRequest(book.getTitle(),
                 new String[]{author.getName()},
                 new String[]{genre.getName()});
@@ -76,7 +80,10 @@ public class BookServiceImplTest {
 
         verify(authorService, only()).findOrCreateByName(any(String[].class));
         verify(genreService, only()).findOrCreateByName(any(String[].class));
-        verify(bookRepository, only()).save(eq(book));
+        final ArgumentCaptor<Book> argument = ArgumentCaptor.forClass(Book.class);
+        verify(bookRepository, only()).save(argument.capture());
+        assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(book);
+
         assertEquals(expected, actual);
     }
 
@@ -98,8 +105,10 @@ public class BookServiceImplTest {
 
         Book actual = bookService.patch(patchRequest);
 
-        verify(bookRepository, times(2)).findById(eq(1L));
-        verify(bookRepository, times(1)).save(eq(expected));
+        verify(bookRepository, times(1)).findById(eq(1L));
+        ArgumentCaptor<Book> argument = ArgumentCaptor.forClass(Book.class);
+        verify(bookRepository, times(1)).save(argument.capture());
+        assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(expected);
         assertNotNull(actual);
         assertEquals(expected, actual);
     }

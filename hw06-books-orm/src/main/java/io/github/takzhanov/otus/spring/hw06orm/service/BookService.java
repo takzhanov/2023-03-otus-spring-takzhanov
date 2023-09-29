@@ -13,7 +13,11 @@ import java.util.Optional;
 public interface BookService {
     List<Book> findAll();
 
-    Optional<Book> findById(Long id);
+    Optional<Book> findById(long id);
+
+    Book getById(long id);
+
+    List<Comment> getCommentsByBookId(long bookId);
 
     Book create(BookCreateRequest book);
 
@@ -23,15 +27,15 @@ public interface BookService {
 
     Book patch(BookPatchRequest patchRequest);
 
-    void delete(Long id);
+    void delete(long bookId);
 
-    Comment addCommentToBook(long id, String commentText);
+    Comment addCommentToBook(long bookId, String text);
 
     Author addAuthorToBook(long bookId, long authorId);
 
-    Author removeAuthor(long bookId, long authorId);
+    Author removeAuthorFromBook(long bookId, long authorId);
 
-    Genre addGenre(long id, long genreId);
+    Genre addGenreToBook(long bookId, long genreId);
 
-    Genre removeGenre(long id, long genreId);
+    Genre removeGenreFromBook(long bookId, long genreId);
 }
