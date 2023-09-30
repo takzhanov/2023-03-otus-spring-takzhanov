@@ -19,7 +19,7 @@ public class FormatterServiceImpl implements FormatterService {
 
     @Override
     public String format(Collection<?> elems) {
-        if (null == elems) {
+        if (null == elems || elems.isEmpty()) {
             return "[]";
         }
         return elems.stream()
