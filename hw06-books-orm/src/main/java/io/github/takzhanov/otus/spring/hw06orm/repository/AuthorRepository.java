@@ -16,6 +16,4 @@ public interface AuthorRepository {
     Author save(Author entity);
 
     void delete(long id);
-
-    void forceDelete(long id);
 }

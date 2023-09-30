@@ -16,6 +16,4 @@ public interface GenreRepository {
     Genre save(Genre entity);
 
     void delete(long id);
-
-    void forceDelete(long id);
 }

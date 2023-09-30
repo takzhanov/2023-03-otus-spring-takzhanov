@@ -157,17 +157,4 @@ class AuthorRepositoryImplTest {
         em.clear();
         assertThat(em.find(Author.class, newAuthor.getId())).isNotNull();
     }
-
-    @Test
-    void forceDelete_ok() {
-        var newAuthor = new Author("Author 1");
-        Book book = new Book("Test Book");
-        book.getAuthors().add(newAuthor);
-        em.persist(book);
-
-        authorRepository.forceDelete(newAuthor.getId());
-
-        assertThat(em.find(Author.class, newAuthor.getId())).isNull();
-        assertThat(em.find(Book.class, book.getId()).getAuthors()).doesNotContain(newAuthor);
-    }
 }
