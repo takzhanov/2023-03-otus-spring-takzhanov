@@ -22,7 +22,7 @@ public class QuizCommands {
     private User user;
 
     @ShellMethodAvailability("loginAvailability")
-    @ShellMethod("Login with first name and last name")
+    @ShellMethod(value = "Login with first name and last name", key = "login")
     public String login(String firstName, String lastName) {
         user = new User(firstName, lastName);
         return messageService.getMessage("msg.logged", formatterService.format(user));
@@ -36,7 +36,7 @@ public class QuizCommands {
     }
 
     @ShellMethodAvailability("startQuizAvailability")
-    @ShellMethod("Logout")
+    @ShellMethod(value = "Logout", key = "logout")
     public String logout() {
         user = null;
         return messageService.getMessage("msg.bye");
@@ -44,7 +44,7 @@ public class QuizCommands {
 
 
     @ShellMethodAvailability("startQuizAvailability")
-    @ShellMethod("Start the quiz (available after login)")
+    @ShellMethod(value = "Start the quiz (available after login)", key = "start")
     public void startQuiz() {
         interactiveService.runSingleQuiz(user);
     }
