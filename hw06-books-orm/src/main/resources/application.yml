@@ -2,12 +2,11 @@ spring:
   shell.interactive.enabled: false
 
 
-
-#  thymeleaf:
-#    cache: false
-#    encoding: UTF-8
-#    servlet:
-#      content-type: text/html; charset=UTF-8
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    servlet:
+      content-type: text/html; charset=UTF-8
 
   jpa:
     show-sql: true
@@ -16,14 +15,16 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        generate_statistics: false
+        session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 15
     open-in-view: false
-
-
 
 
 logging:
   level:
     ROOT: info
+#    org.hibernate.stat: debug
 #    org.hibernate.SQL: debug
+#    org.hibernate.cache: debug
 #    org.hibernate.type: trace
 #    org.hibernate.orm.jdbc.bind: trace
