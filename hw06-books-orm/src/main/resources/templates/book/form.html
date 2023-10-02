@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="${book.title}">Book Form</title>
+</head>
+<body>
+
+<h1 th:text="${book.title}">Book Form</h1>
+<form th:action="@{/books}" th:object="${book}" method="post">
+    <input type="hidden" th:field="*{id}">
+    <label>
+        Title:
+        <input type="text" th:field="*{title}" required autofocus>
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+<hr/>
+<a href="/books">Back to list</a>
+</body>
+</html>
