@@ -27,11 +27,16 @@ class BookRepositoryImplTest {
         book.getAuthors().add(new Author("Author 2"));
         book.getGenres().add(new Genre("Genre 1"));
         book.getGenres().add(new Genre("Genre 2"));
+        em.persist(book);
+
         book.addComment(new Comment("Comment 1"));
         book.addComment(new Comment("Comment 2"));
         book.addComment(new Comment("Comment 3"));
+        for (Comment comment : book.getComments()) {
+            em.persist(comment);
+        }
 
-        em.persistAndFlush(book);
+        em.flush();
         em.clear();
 
         var foundBooks = bookRepository.findAll();
@@ -53,11 +58,16 @@ class BookRepositoryImplTest {
         book.getAuthors().add(new Author("Author 2"));
         book.getGenres().add(new Genre("Genre 1"));
         book.getGenres().add(new Genre("Genre 2"));
+        em.persist(book);
+
         book.addComment(new Comment("Comment 1"));
         book.addComment(new Comment("Comment 2"));
         book.addComment(new Comment("Comment 3"));
+        for (Comment comment : book.getComments()) {
+            em.persist(comment);
+        }
 
-        em.persistAndFlush(book);
+        em.flush();
         em.clear();
 
         var actualBook = bookRepository.findById(book.getId()).get();
@@ -72,11 +82,15 @@ class BookRepositoryImplTest {
         book.getAuthors().add(new Author("Author 2"));
         book.getGenres().add(new Genre("Genre 1"));
         book.getGenres().add(new Genre("Genre 2"));
+        em.persist(book);
+
         book.addComment(new Comment("Comment 1"));
         book.addComment(new Comment("Comment 2"));
         book.addComment(new Comment("Comment 3"));
+        for (Comment comment : book.getComments()) {
+            em.persist(comment);
+        }
 
-        bookRepository.save(book);
         em.flush();
         em.clear();
 

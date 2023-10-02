@@ -50,7 +50,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Comment> getCommentsByBookId(long bookId) {
         return commentRepository.findAllByBookId(bookId);
     }
