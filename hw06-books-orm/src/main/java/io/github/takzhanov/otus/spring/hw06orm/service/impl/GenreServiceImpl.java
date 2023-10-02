@@ -2,7 +2,6 @@ package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 
 import io.github.takzhanov.otus.spring.hw06orm.domain.Genre;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.NotImplementedException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.GenreRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.GenreService;
 import java.util.Arrays;
@@ -85,9 +84,4 @@ public class GenreServiceImpl implements GenreService {
         genreRepository.deleteById(id);
     }
 
-    @Override
-    @Transactional
-    public void forceDelete(long id) {
-        throw new NotImplementedException();
-    }
 }

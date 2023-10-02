@@ -57,12 +57,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book save(Book book) {
-        return bookRepository.save(book);
-    }
-
-    @Override
-    @Transactional
     public Book create(BookCreateRequest book) {
         Set<Author> authors = authorService.findOrCreateByName(book.authorNames());
         Set<Genre> genres = genreService.findOrCreateByName(book.genreNames());
@@ -73,9 +67,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book update(Book updatedBook) {
-        getById(updatedBook.getId());
-        return bookRepository.save(updatedBook);
+    public Book createOrUpdateTitle(Book updatedBook) {
+        if (null == updatedBook.getId()) {
+            return bookRepository.save(updatedBook);
+        } else {
+            var foundBook = getById(updatedBook.getId());
+            foundBook.setTitle(updatedBook.getTitle());
+            return bookRepository.save(foundBook);
+        }
     }
 
     @Override
