@@ -3,7 +3,6 @@ package io.github.takzhanov.otus.spring.hw06orm.service.impl;
 import io.github.takzhanov.otus.spring.hw06orm.domain.Author;
 import io.github.takzhanov.otus.spring.hw06orm.exception.AuthorNotFoundException;
 import io.github.takzhanov.otus.spring.hw06orm.exception.ConstraintException;
-import io.github.takzhanov.otus.spring.hw06orm.exception.NotImplementedException;
 import io.github.takzhanov.otus.spring.hw06orm.repository.AuthorRepository;
 import io.github.takzhanov.otus.spring.hw06orm.service.AuthorService;
 import java.util.Arrays;
@@ -86,9 +85,4 @@ public class AuthorServiceImpl implements AuthorService {
         authorRepository.deleteById(id);
     }
 
-    @Override
-    @Transactional
-    public void forceDelete(long id) {
-        throw new NotImplementedException();
-    }
 }

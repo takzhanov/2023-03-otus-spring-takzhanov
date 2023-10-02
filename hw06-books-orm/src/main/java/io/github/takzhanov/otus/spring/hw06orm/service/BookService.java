@@ -21,7 +21,7 @@ public interface BookService {
 
     Book create(BookCreateRequest book);
 
-    Book update(Book updatedBook);
+    Book createOrUpdateTitle(Book updatedBook);
 
     Book update(BookUpdateRequest updateRequest);
 

@@ -67,9 +67,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Book update(Book updatedBook) {
-        getById(updatedBook.getId());
-        return bookRepository.save(updatedBook);
+    public Book createOrUpdateTitle(Book updatedBook) {
+        if (null == updatedBook.getId()) {
+            return bookRepository.save(updatedBook);
+        } else {
+            var foundBook = getById(updatedBook.getId());
+            foundBook.setTitle(updatedBook.getTitle());
+            return bookRepository.save(foundBook);
+        }
     }
 
     @Override

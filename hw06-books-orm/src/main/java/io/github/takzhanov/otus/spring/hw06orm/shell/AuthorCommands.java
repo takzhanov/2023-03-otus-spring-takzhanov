@@ -45,15 +45,11 @@ public class AuthorCommands {
     }
 
     @ShellMethod(value = "Delete an author", key = {"da", "delete-author"})
-    public String deleteAuthor(@ShellOption Long id, @ShellOption boolean force) {
-        if (force) {
-            authorService.forceDelete(id);
-        } else {
-            try {
-                authorService.delete(id);
-            } catch (DataIntegrityViolationException e) {
-                throw new ConstraintException("There are links. Try to use with --force option");
-            }
+    public String deleteAuthor(@ShellOption Long id) {
+        try {
+            authorService.delete(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConstraintException("There are links. You cannot delete this author");
         }
         return "Author deleted";
     }

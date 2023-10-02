@@ -22,5 +22,4 @@ public interface GenreService {
 
     void delete(long id);
 
-    void forceDelete(long id);
 }

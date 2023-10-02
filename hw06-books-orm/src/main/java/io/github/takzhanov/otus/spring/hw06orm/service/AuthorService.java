@@ -22,5 +22,4 @@ public interface AuthorService {
 
     void delete(long id);
 
-    void forceDelete(long id);
 }

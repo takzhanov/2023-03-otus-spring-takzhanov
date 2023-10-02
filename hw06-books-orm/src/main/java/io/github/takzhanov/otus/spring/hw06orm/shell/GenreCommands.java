@@ -49,16 +49,12 @@ public class GenreCommands {
 
     @ShellMethod(value = "Delete a genre", key = {"dg", "delete-genre"})
     public String deleteGenre(@ShellOption Long id, @ShellOption boolean force) {
-        if (force) {
-            genreService.forceDelete(id);
-        } else {
-            try {
-                genreService.delete(id);
-            } catch (DataIntegrityViolationException e) {
-                return "There are links. Try to use with --force option";
-            }
+        try {
+            genreService.delete(id);
+        } catch (DataIntegrityViolationException e) {
+            return "There are links. You cannot delete this genre";
         }
-        return "Deleted genre with id = " + id;
+        return "Genre deleted";
     }
 }
 
